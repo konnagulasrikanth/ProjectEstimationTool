@@ -1,0 +1,130 @@
+﻿{
+   "CodeGenerationMode": 4,
+   "ContextClassName": "ProjectEstimationToolMasterContext",
+   "ContextNamespace": null,
+   "DefaultDacpacSchema": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": true,
+   "ModelNamespace": null,
+   "OutputContextPath": null,
+   "OutputPath": "Models",
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "ProjectEstimationTool",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 2,
+   "SelectedToBeGenerated": 0,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "[dbo].[Country]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DefaultEffortType]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DefaultFunctionalArea]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DefaultFunctionalSubArea]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DefaultProductivity]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DefaultResource]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DefaultSoftware]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Demodates]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EffortType]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[FunctionalArea]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[FunctionalSubArea]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Productivity]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Project]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Resource]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ResourceAllocation]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ResourceCosting]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ResourceLevel]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ResourceTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ScopeAndEffort]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Software]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Summary]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Timeline]",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": "ics-lt-64146d3\\sqlexpress.ProjectEstimationToolMaster.dbo",
+   "UncountableWords": null,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDateOnlyTimeOnly": true,
+   "UseDbContextSplitting": false,
+   "UseDecimalDataAnnotationForSprocResult": true,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": false,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UsePrefixNavigationNaming": false,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": false
+}
