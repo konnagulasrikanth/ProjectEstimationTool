@@ -398,7 +398,7 @@ namespace ProjectEstimationTool
                         rc.Country == Res.Country &&
                         rc.ResType == Res.ResType &&
                         rc.RoleLevel == Res.RoleLevel);
-                var resourceid = db.Resource.Where(r => r.ProjectId == Form1.projectid && r.TypeName == selectedResourceType).Select(r => r.ResourceId).FirstOrDefault();
+                var resourceid = db.Resource.Where(r => r.ProjectId == Form1.projectid && r.TypeName == selectedResourceType&&r.LevelName==selectedRoleLevel&&r.CountryName==selectedCountry).Select(r => r.ResourceId).FirstOrDefault();
 
                 // Update the ResourceCosting record
                 Res.ProjectId = Form1.projectid;
@@ -563,7 +563,7 @@ namespace ProjectEstimationTool
                     var resrate = db.Resource
                    .Where(t => t.ResourceId == resource.ResourceId && t.ProjectId == Form1.projectid)
                      .FirstOrDefault();
-                    if (resource != null)
+                    if (timelinedata != null && resrate != null)
                     {
                         resource.DurationMm = timelinedata.Mm;
                         resource.Phase = timelinedata.Phase;
@@ -572,11 +572,14 @@ namespace ProjectEstimationTool
                         resource.Country = resrate.CountryName;
 
 
-                        Rateformula(resrate.TypeName, resrate.TypeName, resrate.LevelName, timelinedata.Phase, resource.ResCount);
+                        Rateformula(resrate.CountryName, resrate.TypeName, resrate.LevelName, timelinedata.Phase, resource.ResCount);
 
                         resource.HourlyRate = resrate.HourlyRate;
                         resource.MonthlyRate = resource.HourlyRate * Monthlyhours * resource.ResCount;
                         resource.Cost = resource.DurationMm * resource.MonthlyRate;
+                        // Updated code to ensure the correct update
+                        resource.Country = resrate.CountryName;
+                        resource.ResType = resrate.TypeName;
                         db.SaveChanges();
 
                     }

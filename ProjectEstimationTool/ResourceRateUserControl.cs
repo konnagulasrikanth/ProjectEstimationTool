@@ -48,6 +48,11 @@ namespace ProjectEstimationTool
         private void button1_Click(object sender, EventArgs e)
         {
             button1.BackColor = Color.LightBlue;
+            // Clear entered values
+            comboBox1.SelectedIndex = -1;
+            comboBox2.SelectedIndex = -1;
+            comboBox3.SelectedIndex = -1;
+            textBox1.Text = "";
             panel1.Visible = true;
             panel2.Visible = false;
             comboBox1.Refresh();
@@ -76,6 +81,7 @@ namespace ProjectEstimationTool
                 .Distinct();
             comboBox3.Items.Clear();
             comboBox3.Items.AddRange(fsa.ToArray());
+       
             LoadDefaultResourceData();
         }
 
@@ -245,11 +251,13 @@ namespace ProjectEstimationTool
                     var restype = db.ResourceTypes
                    .Where(t => t.ResourceTypeId == ResourceRecord.ResourceTypeId && t.ProjectId == Form1.projectid)
                        .FirstOrDefault();
+              
                     if (ResourceRecord != null)
                     {
                         ResourceRecord.TypeName = restype.TypeName;
                         ResourceRecord.LevelName = reslevel.LevelName;
                         ResourceRecord.CountryName = countrydata.CountryName;
+                      
                         db.SaveChanges();
 
                     }
@@ -373,8 +381,14 @@ namespace ProjectEstimationTool
         {
 
             button1.BackColor = Color.RosyBrown;
-
+            // Clear entered values
+            comboBox1.SelectedIndex = -1;
+            comboBox2.SelectedIndex = -1;
+            comboBox3.SelectedIndex = -1;
+            textBox1.Text = "";
             panel1.Visible = false;
+        
+
         }
 
         private void button6_Click(object sender, EventArgs e)

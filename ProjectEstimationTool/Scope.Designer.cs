@@ -155,21 +155,22 @@ namespace ProjectEstimationTool
             // 
             // contextMenuStrip1
             // 
+            contextMenuStrip1.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             contextMenuStrip1.Items.AddRange(new ToolStripItem[] { editToolStripMenuItem, deleteToolStripMenuItem });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(108, 48);
+            contextMenuStrip1.Size = new Size(117, 48);
             // 
             // editToolStripMenuItem
             // 
             editToolStripMenuItem.Name = "editToolStripMenuItem";
-            editToolStripMenuItem.Size = new Size(107, 22);
+            editToolStripMenuItem.Size = new Size(116, 22);
             editToolStripMenuItem.Text = "Edit";
             editToolStripMenuItem.Click += editToolStripMenuItem_Click;
             // 
             // deleteToolStripMenuItem
             // 
             deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            deleteToolStripMenuItem.Size = new Size(107, 22);
+            deleteToolStripMenuItem.Size = new Size(116, 22);
             deleteToolStripMenuItem.Text = "Delete";
             deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
             // 
@@ -731,7 +732,7 @@ namespace ProjectEstimationTool
             panel3.Controls.Add(comboBox6);
             panel3.Controls.Add(button3);
             panel3.Controls.Add(label18);
-            panel3.Location = new Point(113, 310);
+            panel3.Location = new Point(59, 370);
             panel3.Name = "panel3";
             panel3.Size = new Size(610, 301);
             panel3.TabIndex = 18;

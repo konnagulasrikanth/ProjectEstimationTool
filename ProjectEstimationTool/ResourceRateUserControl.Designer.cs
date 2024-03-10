@@ -204,7 +204,7 @@
             button2.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             button2.Location = new Point(285, 166);
             button2.Name = "button2";
-            button2.Size = new Size(75, 23);
+            button2.Size = new Size(75, 30);
             button2.TabIndex = 8;
             button2.Text = "Save";
             button2.UseVisualStyleBackColor = false;
@@ -298,7 +298,7 @@
             panel2.Controls.Add(label6);
             panel2.Controls.Add(label7);
             panel2.Controls.Add(label8);
-            panel2.Location = new Point(784, 274);
+            panel2.Location = new Point(326, 247);
             panel2.Name = "panel2";
             panel2.Size = new Size(402, 211);
             panel2.TabIndex = 3;

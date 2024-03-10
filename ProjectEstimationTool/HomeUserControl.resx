@@ -117,4 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="label2.Text" xml:space="preserve">
+    <value>Welcome to the Project Estimation Tool, your comprehensive solution for accurate project estimation. 
+This tool is designed to empower project managers and senior management in providing precise estimates
+for future projects based on the Requests for Proposals (RFPs) received by Infinite.
+
+
+</value>
+  </data>
 </root>

@@ -51,7 +51,6 @@
             label20 = new Label();
             label21 = new Label();
             button1 = new Button();
-            label22 = new Label();
             button2 = new Button();
             label2 = new Label();
             label1 = new Label();
@@ -339,7 +338,7 @@
             button1.BackColor = Color.RosyBrown;
             button1.FlatStyle = FlatStyle.Popup;
             button1.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button1.Location = new Point(1093, 601);
+            button1.Location = new Point(1105, 587);
             button1.Name = "button1";
             button1.Size = new Size(86, 25);
             button1.TabIndex = 24;
@@ -347,24 +346,14 @@
             button1.UseVisualStyleBackColor = false;
             button1.Click += button1_Click;
             // 
-            // label22
-            // 
-            label22.AutoSize = true;
-            label22.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label22.Location = new Point(1093, 569);
-            label22.Name = "label22";
-            label22.Size = new Size(51, 18);
-            label22.TabIndex = 25;
-            label22.Text = "label22";
-            // 
             // button2
             // 
             button2.BackColor = Color.RosyBrown;
             button2.FlatStyle = FlatStyle.Popup;
             button2.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button2.Location = new Point(1093, 653);
+            button2.Location = new Point(1274, 4);
             button2.Name = "button2";
-            button2.Size = new Size(86, 25);
+            button2.Size = new Size(86, 32);
             button2.TabIndex = 26;
             button2.Text = "Previous";
             button2.UseVisualStyleBackColor = false;
@@ -387,7 +376,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.BackColor = Color.Gray;
+            label1.BackColor = Color.Black;
             label1.Dock = DockStyle.Fill;
             label1.Font = new Font("Palatino Linotype", 21.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label1.ForeColor = Color.FromArgb(128, 255, 128);
@@ -539,7 +528,6 @@
             Controls.Add(tableLayoutPanel2);
             Controls.Add(tableLayoutPanel1);
             Controls.Add(button2);
-            Controls.Add(label22);
             Controls.Add(button1);
             Controls.Add(label21);
             Controls.Add(textBox2);
@@ -581,7 +569,6 @@
         private Label label20;
         private Label label21;
         private Button button1;
-        private Label label22;
         private Button button2;
         private Label label2;
         private Label label1;

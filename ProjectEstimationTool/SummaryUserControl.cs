@@ -33,7 +33,7 @@ namespace ProjectEstimationTool
 
             //textBox1.Text = "5";
             //textBox2.Text = "20";
-            label22.Visible = false;
+            //label22.Visible = false;
 
         }
         private void LoadSummaryData()
@@ -339,7 +339,7 @@ namespace ProjectEstimationTool
 
                 }
 
-                label22.Text = "PDF generated successfully.";
+                //label22.Text = "PDF generated successfully.";
 
             }
 

@@ -102,8 +102,19 @@ namespace ProjectEstimationTool
 
 
         }
+        private bool IsDuplicateScopeAndEffort()
+        {
+            var existingRecord = db.ScopeAndEffort
+                .Any(s =>
+                    s.ProjectId == Form1.projectid &&
+                    s.FunctionalAreaName == comboBox1.SelectedItem.ToString() &&
+                    s.EffortName == comboBox2.SelectedItem.ToString() &&
+                    s.FunctionalSubAreaName == comboBox3.SelectedItem.ToString());
 
-        private void button2_Click(object sender, EventArgs e)
+            return existingRecord;
+        }
+
+        private void button2_Click(object sender, EventArgs e) //Add data for scope and effort
         {
             button1.BackColor = Color.RosyBrown;
             try
@@ -114,6 +125,12 @@ namespace ProjectEstimationTool
                     string.IsNullOrEmpty(textBox1.Text))
                 {
                     MessageBox.Show("Please select the mandatory fields", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                // Check if the combination already exists
+                if (IsDuplicateScopeAndEffort())
+                {
+                    MessageBox.Show("The combination of Effort Type, Functional Area, and Functional Sub-Area already exists.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
@@ -291,8 +308,21 @@ namespace ProjectEstimationTool
                 }
             }
         }
+        private bool IsDuplicateScopeAndEffortForEdit(int currentScopeAndEffortId)
+        {
+            var existingRecord = db.ScopeAndEffort
+                .Any(s =>
+                    s.ProjectId == Form1.projectid &&
+                    s.FunctionalAreaName == comboBox6.SelectedItem.ToString() &&
+                    s.EffortName == comboBox5.SelectedItem.ToString() &&
+                    s.FunctionalSubAreaName == comboBox4.SelectedItem.ToString() &&
+                    s.ScopeAndEffortId != currentScopeAndEffortId);
 
-        private void button3_Click(object sender, EventArgs e)
+            return existingRecord;
+        }
+
+
+        private void button3_Click(object sender, EventArgs e) //edit code for scope and effort
         {
 
             string effort = comboBox5.SelectedItem?.ToString();
@@ -305,6 +335,12 @@ namespace ProjectEstimationTool
                 string.IsNullOrEmpty(textBox10.Text))
             {
                 MessageBox.Show("Please fill in all the mandatory fields.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            // Validate that the combination does not already exist (excluding the current record)
+            if (IsDuplicateScopeAndEffortForEdit(s.ScopeAndEffortId))
+            {
+                MessageBox.Show("The combination of Effort Type, Functional Area, and Functional Sub-Area already exists.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 

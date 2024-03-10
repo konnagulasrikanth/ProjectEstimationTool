@@ -95,6 +95,8 @@
             button6 = new Button();
             button7 = new Button();
             dataGridView2 = new DataGridView();
+            resourceAllocationBindingSource = new BindingSource(components);
+            label14 = new Label();
             resourceAllocationIdDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             projectIdDataGridViewTextBoxColumn1 = new DataGridViewTextBoxColumn();
             timelineIdDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
@@ -107,8 +109,6 @@
             resourcePendingDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             projectDataGridViewTextBoxColumn1 = new DataGridViewTextBoxColumn();
             timelineDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            resourceAllocationBindingSource = new BindingSource(components);
-            label14 = new Label();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)resourceCostingBindingSource).BeginInit();
@@ -677,6 +677,21 @@
             dataGridView2.TabIndex = 7;
             dataGridView2.CellContentClick += dataGridView2_CellContentClick;
             // 
+            // resourceAllocationBindingSource
+            // 
+            resourceAllocationBindingSource.DataSource = typeof(Models.ResourceAllocation);
+            // 
+            // label14
+            // 
+            label14.AutoSize = true;
+            label14.BackColor = Color.LightBlue;
+            label14.Font = new Font("Palatino Linotype", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label14.Location = new Point(49, 4);
+            label14.Name = "label14";
+            label14.Size = new Size(231, 32);
+            label14.TabIndex = 8;
+            label14.Text = "Resource Allocation";
+            // 
             // resourceAllocationIdDataGridViewTextBoxColumn
             // 
             resourceAllocationIdDataGridViewTextBoxColumn.DataPropertyName = "ResourceAllocationId";
@@ -742,7 +757,7 @@
             // resourceAllocatedDataGridViewTextBoxColumn
             // 
             resourceAllocatedDataGridViewTextBoxColumn.DataPropertyName = "ResourceAllocated";
-            dataGridViewCellStyle14.BackColor = Color.FromArgb(255, 255, 128);
+            dataGridViewCellStyle14.BackColor = Color.LightGreen;
             resourceAllocatedDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle14;
             resourceAllocatedDataGridViewTextBoxColumn.HeaderText = "Resource Currently Allocated";
             resourceAllocatedDataGridViewTextBoxColumn.Name = "resourceAllocatedDataGridViewTextBoxColumn";
@@ -772,21 +787,6 @@
             timelineDataGridViewTextBoxColumn.Name = "timelineDataGridViewTextBoxColumn";
             timelineDataGridViewTextBoxColumn.ReadOnly = true;
             timelineDataGridViewTextBoxColumn.Visible = false;
-            // 
-            // resourceAllocationBindingSource
-            // 
-            resourceAllocationBindingSource.DataSource = typeof(Models.ResourceAllocation);
-            // 
-            // label14
-            // 
-            label14.AutoSize = true;
-            label14.BackColor = Color.LightBlue;
-            label14.Font = new Font("Palatino Linotype", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label14.Location = new Point(49, 4);
-            label14.Name = "label14";
-            label14.Size = new Size(231, 32);
-            label14.TabIndex = 8;
-            label14.Text = "Resource Allocation";
             // 
             // ResourceCostingUserControl
             // 

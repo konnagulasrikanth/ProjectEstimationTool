@@ -191,20 +191,21 @@ namespace ProjectEstimationTool
             panel4.Controls.Add(new Scope());
             colorbutton(scopeEffortToolStripMenuItem);
         }
-
+        public void LoadhomeSection()
+        {
+            panel4.Controls.Clear();
+            panel4.Controls.Add(new HomeUserControl());
+            colorbutton(homeToolStripMenuItem);
+        }
         private void homeToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-            Form1.projectid = 0;
-            Form1 fc = new Form1();
-            if (fc == null)
-            {
-                fc = new Form1();
-            }
-            this.FindForm()?.Hide();
-            fc.Show();
+
+            panel4.Controls.Clear();
+            panel4.Controls.Add(new HomeUserControl());
             colorbutton(homeToolStripMenuItem);
 
         }
+
 
         private void timelineToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
@@ -224,8 +225,8 @@ namespace ProjectEstimationTool
             panel4.Controls.Clear();
             panel4.Controls.Add(new EffortTypeUserControl());
         }
-         
-       
+
+
 
         private void productivityToolStripMenuItem_Click_2(object sender, EventArgs e)
         {
@@ -278,10 +279,40 @@ namespace ProjectEstimationTool
         private void resourceCostingToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
             panel4.Controls.Clear();
-            panel4.Controls.Add(new ResourceCostingUserControl());
-            //ResourceAllocationUserControl rc = new ResourceAllocationUserControl();
+
+            // Load ResourceCostingUserControl and add it to panel4
+            ResourceCostingUserControl resourceCostingUserControl = new ResourceCostingUserControl();
+            panel4.Controls.Add(resourceCostingUserControl);
+
+            // Load ResourceAllocationUserControl in the background (hidden)
+            ResourceAllocationUserControl resourceAllocationUserControl = new ResourceAllocationUserControl();
+            resourceAllocationUserControl.RefreshData(); // Refresh data if needed
+
+            // Add ResourceAllocationUserControl to panel4 (not setting Visible to true)
+            panel4.Controls.Add(resourceAllocationUserControl);
+
+            // Enable buttons in parent control (if applicable)
+            ResourceAllocationUserControl parentControl = FindParent<ResourceAllocationUserControl>(this);
+            if (parentControl != null)
+            {
+                parentControl.RefreshData();
+            }
+
             colorbutton(resourceCostingToolStripMenuItem);
 
+        }
+        private T FindParent<T>(Control control) where T : Control
+        { //for accessing the parent control
+            Control parent = control.Parent;
+            while (parent != null)
+            {
+                if (parent is T typedParent)
+                {
+                    return typedParent;
+                }
+                parent = parent.Parent;
+            }
+            return null;
         }
 
         private void resourceCostingToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -318,6 +349,19 @@ namespace ProjectEstimationTool
         {
             panel4.Controls.Clear();
             panel4.Controls.Add(new ResourceAllocationUserControl());
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            Form1.projectid = 0;
+            Form1 fc = new Form1();
+            if (fc == null)
+            {
+                fc = new Form1();
+            }
+            this.FindForm()?.Hide();
+            fc.Show();
+            colorbutton(toolStripMenuItem1);
         }
     }
 }

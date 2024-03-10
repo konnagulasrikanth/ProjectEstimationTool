@@ -358,7 +358,6 @@ public partial class ProjectEstimationToolMasterContext : DbContext
 
             entity.HasOne(d => d.Resource).WithMany(p => p.ResourceCosting)
                 .HasForeignKey(d => d.ResourceId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Resource_Rate");
 
             entity.HasOne(d => d.Timeline).WithMany(p => p.ResourceCosting)
