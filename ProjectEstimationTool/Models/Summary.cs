@@ -15,7 +15,5 @@ public partial class Summary
 
     public double Contingency { get; set; }
 
-    public double Total { get; set; }
-
     public virtual Project Project { get; set; }
 }

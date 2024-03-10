@@ -73,7 +73,7 @@
             dataGridView1.BackgroundColor = Color.White;
             dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle1.BackColor = Color.RosyBrown;
-            dataGridViewCellStyle1.Font = new Font("Palatino Linotype", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle1.Font = new Font("Palatino Linotype", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
             dataGridViewCellStyle1.SelectionBackColor = Color.RosyBrown;
             dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
@@ -136,21 +136,22 @@
             // 
             // contextMenuStrip1
             // 
+            contextMenuStrip1.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             contextMenuStrip1.Items.AddRange(new ToolStripItem[] { editToolStripMenuItem, deleteToolStripMenuItem });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(108, 48);
+            contextMenuStrip1.Size = new Size(117, 48);
             // 
             // editToolStripMenuItem
             // 
             editToolStripMenuItem.Name = "editToolStripMenuItem";
-            editToolStripMenuItem.Size = new Size(107, 22);
+            editToolStripMenuItem.Size = new Size(116, 22);
             editToolStripMenuItem.Text = "Edit";
             editToolStripMenuItem.Click += editToolStripMenuItem_Click;
             // 
             // deleteToolStripMenuItem
             // 
             deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            deleteToolStripMenuItem.Size = new Size(107, 22);
+            deleteToolStripMenuItem.Size = new Size(116, 22);
             deleteToolStripMenuItem.Text = "Delete";
             deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
             // 
@@ -201,7 +202,7 @@
             button2.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             button2.Location = new Point(147, 112);
             button2.Name = "button2";
-            button2.Size = new Size(75, 23);
+            button2.Size = new Size(75, 37);
             button2.TabIndex = 2;
             button2.Text = "Update";
             button2.UseVisualStyleBackColor = false;
@@ -220,6 +221,7 @@
             // textBox1
             // 
             textBox1.Location = new Point(203, 67);
+            textBox1.MaxLength = 50;
             textBox1.Name = "textBox1";
             textBox1.Size = new Size(150, 23);
             textBox1.TabIndex = 0;
@@ -231,7 +233,7 @@
             panel2.Controls.Add(button5);
             panel2.Controls.Add(label5);
             panel2.Controls.Add(textBox2);
-            panel2.Location = new Point(535, 292);
+            panel2.Location = new Point(476, 330);
             panel2.Name = "panel2";
             panel2.Size = new Size(418, 176);
             panel2.TabIndex = 5;
@@ -287,6 +289,7 @@
             // textBox2
             // 
             textBox2.Location = new Point(181, 82);
+            textBox2.MaxLength = 50;
             textBox2.Name = "textBox2";
             textBox2.Size = new Size(159, 23);
             textBox2.TabIndex = 0;
@@ -320,9 +323,9 @@
             button6.BackColor = Color.RosyBrown;
             button6.FlatStyle = FlatStyle.Popup;
             button6.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold);
-            button6.Location = new Point(1127, 3);
+            button6.Location = new Point(1213, 3);
             button6.Name = "button6";
-            button6.Size = new Size(71, 23);
+            button6.Size = new Size(71, 34);
             button6.TabIndex = 6;
             button6.Text = "Previous";
             button6.UseVisualStyleBackColor = false;
@@ -333,9 +336,9 @@
             button7.BackColor = Color.RosyBrown;
             button7.FlatStyle = FlatStyle.Popup;
             button7.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold);
-            button7.Location = new Point(1211, 3);
+            button7.Location = new Point(1290, 3);
             button7.Name = "button7";
-            button7.Size = new Size(65, 23);
+            button7.Size = new Size(70, 34);
             button7.TabIndex = 7;
             button7.Text = "Next";
             button7.UseVisualStyleBackColor = false;

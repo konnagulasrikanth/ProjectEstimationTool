@@ -71,7 +71,7 @@
             dataGridView1.BackgroundColor = Color.White;
             dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle1.BackColor = Color.RosyBrown;
-            dataGridViewCellStyle1.Font = new Font("Palatino Linotype", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle1.Font = new Font("Palatino Linotype", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
             dataGridViewCellStyle1.SelectionBackColor = Color.RosyBrown;
             dataGridViewCellStyle1.SelectionForeColor = Color.Black;
@@ -103,7 +103,7 @@
             dataGridView1.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             dataGridView1.RowHeadersVisible = false;
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridView1.Size = new Size(257, 107);
+            dataGridView1.Size = new Size(257, 79);
             dataGridView1.TabIndex = 3;
             dataGridView1.CellContentClick += dataGridView1_CellContentClick;
             dataGridView1.CellMouseDown += dataGridView1_CellMouseDown;
@@ -123,21 +123,22 @@
             // 
             // contextMenuStrip1
             // 
+            contextMenuStrip1.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             contextMenuStrip1.Items.AddRange(new ToolStripItem[] { editToolStripMenuItem, deleteToolStripMenuItem });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(108, 48);
+            contextMenuStrip1.Size = new Size(117, 48);
             // 
             // editToolStripMenuItem
             // 
             editToolStripMenuItem.Name = "editToolStripMenuItem";
-            editToolStripMenuItem.Size = new Size(107, 22);
+            editToolStripMenuItem.Size = new Size(116, 22);
             editToolStripMenuItem.Text = "Edit";
             editToolStripMenuItem.Click += editToolStripMenuItem_Click;
             // 
             // deleteToolStripMenuItem
             // 
             deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            deleteToolStripMenuItem.Size = new Size(107, 22);
+            deleteToolStripMenuItem.Size = new Size(116, 22);
             deleteToolStripMenuItem.Text = "Delete";
             deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
             // 
@@ -182,7 +183,7 @@
             panel1.Location = new Point(487, 227);
             panel1.Margin = new Padding(4);
             panel1.Name = "panel1";
-            panel1.Size = new Size(400, 197);
+            panel1.Size = new Size(400, 186);
             panel1.TabIndex = 4;
             // 
             // button2
@@ -217,6 +218,7 @@
             // 
             textBox1.Location = new Point(204, 85);
             textBox1.Margin = new Padding(4);
+            textBox1.MaxLength = 20;
             textBox1.Name = "textBox1";
             textBox1.Size = new Size(127, 28);
             textBox1.TabIndex = 7;
@@ -251,7 +253,7 @@
             panel2.Controls.Add(textBox2);
             panel2.Controls.Add(label4);
             panel2.Controls.Add(label5);
-            panel2.Location = new Point(581, 198);
+            panel2.Location = new Point(554, 200);
             panel2.Margin = new Padding(4);
             panel2.Name = "panel2";
             panel2.Size = new Size(362, 195);
@@ -289,6 +291,7 @@
             // 
             textBox2.Location = new Point(165, 83);
             textBox2.Margin = new Padding(4);
+            textBox2.MaxLength = 20;
             textBox2.Name = "textBox2";
             textBox2.Size = new Size(127, 28);
             textBox2.TabIndex = 7;

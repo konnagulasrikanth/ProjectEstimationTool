@@ -258,7 +258,7 @@
             button3.BackColor = Color.RosyBrown;
             button3.FlatStyle = FlatStyle.Popup;
             button3.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold);
-            button3.Location = new Point(1164, 4);
+            button3.Location = new Point(1167, 2);
             button3.Margin = new Padding(4);
             button3.Name = "button3";
             button3.Size = new Size(94, 32);
@@ -272,7 +272,7 @@
             button4.BackColor = Color.RosyBrown;
             button4.FlatStyle = FlatStyle.Popup;
             button4.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold);
-            button4.Location = new Point(1265, 4);
+            button4.Location = new Point(1268, 2);
             button4.Margin = new Padding(4);
             button4.Name = "button4";
             button4.Size = new Size(94, 32);

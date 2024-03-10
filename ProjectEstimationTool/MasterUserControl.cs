@@ -185,6 +185,12 @@ namespace ProjectEstimationTool
             colorbutton(scopeEffortToolStripMenuItem);
 
         }
+        public void LoadScopeSection()
+        {
+            panel4.Controls.Clear();
+            panel4.Controls.Add(new Scope());
+            colorbutton(scopeEffortToolStripMenuItem);
+        }
 
         private void homeToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
@@ -213,6 +219,13 @@ namespace ProjectEstimationTool
             panel4.Controls.Clear();
             panel4.Controls.Add(new EffortTypeUserControl());
         }
+        public void loadconfigdata()
+        {
+            panel4.Controls.Clear();
+            panel4.Controls.Add(new EffortTypeUserControl());
+        }
+         
+       
 
         private void productivityToolStripMenuItem_Click_2(object sender, EventArgs e)
         {
@@ -266,6 +279,7 @@ namespace ProjectEstimationTool
         {
             panel4.Controls.Clear();
             panel4.Controls.Add(new ResourceCostingUserControl());
+            //ResourceAllocationUserControl rc = new ResourceAllocationUserControl();
             colorbutton(resourceCostingToolStripMenuItem);
 
         }
@@ -280,7 +294,7 @@ namespace ProjectEstimationTool
 
         private void resourceAllocationToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-           
+
         }
 
         private void summaryToolStripMenuItem_Click(object sender, EventArgs e)
@@ -293,11 +307,17 @@ namespace ProjectEstimationTool
         {
             homeToolStripMenuItem.BackColor = Color.RosyBrown;
             configurationsToolStripMenuItem.BackColor = Color.RosyBrown;
-            scopeEffortToolStripMenuItem.BackColor= Color.RosyBrown;
+            scopeEffortToolStripMenuItem.BackColor = Color.RosyBrown;
             timelineToolStripMenuItem.BackColor = Color.RosyBrown;
             resourceCostingToolStripMenuItem.BackColor = Color.RosyBrown;
             summaryToolStripMenuItem.BackColor = Color.RosyBrown;
             stripMenuItem.BackColor = Color.LightBlue;
+        }
+
+        private void resourceAllocationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            panel4.Controls.Clear();
+            panel4.Controls.Add(new ResourceAllocationUserControl());
         }
     }
 }

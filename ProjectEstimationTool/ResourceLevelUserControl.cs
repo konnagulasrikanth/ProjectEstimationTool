@@ -16,6 +16,7 @@ namespace ProjectEstimationTool
     {
         ProjectEstimationToolMasterContext db = new ProjectEstimationToolMasterContext();
         private ResourceLevel leveldata;
+         int levelid;
         public ResourceLevelUserControl()
         {
             InitializeComponent();
@@ -49,10 +50,16 @@ namespace ProjectEstimationTool
             panel2.Visible = false;
 
         }
-        private bool ResourceLevelExists(string name)
+        private bool ResourceLevelExists(string name, int currentResourceLevelId)
         {
-            // Check if the resource level name already exists in the database
-            return db.ResourceLevel.Any(r => r.ProjectId == Form1.projectid && r.LevelName == name);
+            // Check if the resource level name already exists in the database (case-insensitive)
+            var existingResourceLevel = db.ResourceLevel
+                .FirstOrDefault(rl =>
+                    rl.ProjectId == Form1.projectid &&
+                    rl.LevelName.ToLower() == name.ToLower() &&
+                    rl.LevelId != currentResourceLevelId);
+
+            return existingResourceLevel != null;
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -81,7 +88,7 @@ namespace ProjectEstimationTool
                 }
 
                 // Validate that LevelName is not duplicated
-                if (ResourceLevelExists(textBox1.Text))
+                if (ResourceLevelExists(textBox1.Text,leveldata.LevelId))
                 {
                     MessageBox.Show("Resource level name already exists. Please choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
@@ -90,7 +97,7 @@ namespace ProjectEstimationTool
                 var res = new ResourceLevel
                 {
                     ProjectId = Form1.projectid,
-                    LevelName = textBox1.Text,
+                    LevelName = textBox1.Text.Trim(),
                 };
                 db.ResourceLevel.Add(res);
                 db.SaveChanges();
@@ -106,8 +113,9 @@ namespace ProjectEstimationTool
         private bool IsValidResourceLevelName(string levelName)
         {
             // Check if the input contains only letters
-            return !string.IsNullOrWhiteSpace(levelName) && levelName.All(c => char.IsLetter(c));
-        }
+            return !string.IsNullOrWhiteSpace(levelName) && levelName.Any(c => char.IsLetter(c)) && levelName.Any(c => char.IsDigit(c));
+        
+         }
 
         private void button5_Click(object sender, EventArgs e) //edit button of resource level
         {
@@ -135,7 +143,7 @@ namespace ProjectEstimationTool
                 }
 
                 // Validate that LevelName is not duplicated
-                if (ResourceLevelExists(textBox2.Text))
+                if (ResourceLevelExists(textBox2.Text,leveldata.LevelId))
                 {
                     MessageBox.Show("Resource level name already exists. Please choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
@@ -146,7 +154,7 @@ namespace ProjectEstimationTool
                         select t;
                 if (d.Any())
                 {
-                    leveldata.LevelName = textBox2.Text;
+                    leveldata.LevelName = textBox2.Text.Trim();
                     db.SaveChanges();
                     MessageBox.Show("Resource Level updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadResourceLevelData();

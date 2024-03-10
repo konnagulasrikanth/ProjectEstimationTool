@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
             label1 = new Label();
             dataGridView1 = new DataGridView();
             timelineIdDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
@@ -114,8 +116,26 @@
             dataGridView1.AllowUserToDeleteRows = false;
             dataGridView1.AllowUserToResizeColumns = false;
             dataGridView1.AutoGenerateColumns = false;
+            dataGridView1.BackgroundColor = Color.White;
+            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = Color.RosyBrown;
+            dataGridViewCellStyle3.Font = new Font("Palatino Linotype", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle3.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = Color.RosyBrown;
+            dataGridViewCellStyle3.SelectionForeColor = Color.Black;
+            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.True;
+            dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
             dataGridView1.Columns.AddRange(new DataGridViewColumn[] { timelineIdDataGridViewTextBoxColumn, projectIdDataGridViewTextBoxColumn, Functionality, Phasename, EffHrs, ResReq, Mmname, Lagname });
             dataGridView1.DataSource = timelineBindingSource;
+            dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = SystemColors.Window;
+            dataGridViewCellStyle4.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle4.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle4.SelectionBackColor = Color.LightBlue;
+            dataGridViewCellStyle4.SelectionForeColor = Color.Black;
+            dataGridViewCellStyle4.WrapMode = DataGridViewTriState.False;
+            dataGridView1.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridView1.EnableHeadersVisualStyles = false;
             dataGridView1.Location = new Point(56, 146);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.ReadOnly = true;
@@ -199,9 +219,9 @@
             label6.BackColor = Color.LightBlue;
             label6.Dock = DockStyle.Fill;
             label6.Font = new Font("Arial", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label6.Location = new Point(168, 32);
+            label6.Location = new Point(169, 32);
             label6.Name = "label6";
-            label6.Size = new Size(158, 31);
+            label6.Size = new Size(159, 31);
             label6.TabIndex = 1;
             label6.Text = "label6";
             label6.TextAlign = ContentAlignment.MiddleCenter;
@@ -212,9 +232,9 @@
             label5.BackColor = Color.LightBlue;
             label5.Dock = DockStyle.Fill;
             label5.Font = new Font("Arial", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label5.Location = new Point(168, 1);
+            label5.Location = new Point(169, 1);
             label5.Name = "label5";
-            label5.Size = new Size(158, 30);
+            label5.Size = new Size(159, 30);
             label5.TabIndex = 0;
             label5.Text = "label5";
             label5.TextAlign = ContentAlignment.MiddleCenter;
@@ -228,7 +248,7 @@
             label4.Font = new Font("Arial", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label4.Location = new Point(4, 32);
             label4.Name = "label4";
-            label4.Size = new Size(157, 31);
+            label4.Size = new Size(158, 31);
             label4.TabIndex = 1;
             label4.Text = "Duration in Months";
             label4.TextAlign = ContentAlignment.MiddleCenter;
@@ -241,7 +261,7 @@
             label3.Font = new Font("Arial", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label3.Location = new Point(4, 1);
             label3.Name = "label3";
-            label3.Size = new Size(157, 30);
+            label3.Size = new Size(158, 30);
             label3.TabIndex = 0;
             label3.Text = "Total Hours";
             label3.TextAlign = ContentAlignment.MiddleCenter;
@@ -286,10 +306,10 @@
             // label20
             // 
             label20.AutoSize = true;
-            label20.Font = new Font("Arial", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label20.Font = new Font("Palatino Linotype", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label20.Location = new Point(69, 10);
             label20.Name = "label20";
-            label20.Size = new Size(92, 16);
+            label20.Size = new Size(106, 21);
             label20.TabIndex = 13;
             label20.Text = "Add Timeline";
             // 
@@ -372,7 +392,7 @@
             // 
             label9.AutoSize = true;
             label9.Font = new Font("Palatino Linotype", 9.75F);
-            label9.Location = new Point(17, 38);
+            label9.Location = new Point(17, 41);
             label9.Name = "label9";
             label9.Size = new Size(89, 18);
             label9.TabIndex = 5;
@@ -456,45 +476,50 @@
             // label19
             // 
             label19.AutoSize = true;
+            label19.Font = new Font("Palatino Linotype", 9.75F);
             label19.Location = new Point(35, 236);
             label19.Name = "label19";
-            label19.Size = new Size(26, 15);
+            label19.Size = new Size(30, 18);
             label19.TabIndex = 11;
             label19.Text = "Lag";
             // 
             // label18
             // 
             label18.AutoSize = true;
+            label18.Font = new Font("Palatino Linotype", 9.75F);
             label18.Location = new Point(32, 195);
             label18.Name = "label18";
-            label18.Size = new Size(29, 15);
+            label18.Size = new Size(32, 18);
             label18.TabIndex = 10;
             label18.Text = "MM";
             // 
             // label17
             // 
             label17.AutoSize = true;
+            label17.Font = new Font("Palatino Linotype", 9.75F);
             label17.Location = new Point(23, 141);
             label17.Name = "label17";
-            label17.Size = new Size(25, 15);
+            label17.Size = new Size(29, 18);
             label17.TabIndex = 9;
             label17.Text = "Res";
             // 
             // label16
             // 
             label16.AutoSize = true;
+            label16.Font = new Font("Palatino Linotype", 9.75F);
             label16.Location = new Point(19, 95);
             label16.Name = "label16";
-            label16.Size = new Size(38, 15);
+            label16.Size = new Size(43, 18);
             label16.TabIndex = 8;
             label16.Text = "Phase";
             // 
             // label15
             // 
             label15.AutoSize = true;
-            label15.Location = new Point(7, 52);
+            label15.Font = new Font("Palatino Linotype", 9.75F);
+            label15.Location = new Point(3, 49);
             label15.Name = "label15";
-            label15.Size = new Size(76, 15);
+            label15.Size = new Size(89, 18);
             label15.TabIndex = 7;
             label15.Text = "Functionality";
             // 
@@ -538,10 +563,10 @@
             // label14
             // 
             label14.AutoSize = true;
-            label14.Font = new Font("Arial", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label14.Font = new Font("Palatino Linotype", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label14.Location = new Point(62, 13);
             label14.Name = "label14";
-            label14.Size = new Size(112, 16);
+            label14.Size = new Size(126, 21);
             label14.TabIndex = 0;
             label14.Text = "Update Timeline";
             // 
@@ -549,19 +574,21 @@
             // 
             contextMenuStrip1.Items.AddRange(new ToolStripItem[] { editToolStripMenuItem, deleteToolStripMenuItem });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(108, 48);
+            contextMenuStrip1.Size = new Size(116, 48);
             // 
             // editToolStripMenuItem
             // 
+            editToolStripMenuItem.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             editToolStripMenuItem.Name = "editToolStripMenuItem";
-            editToolStripMenuItem.Size = new Size(107, 22);
+            editToolStripMenuItem.Size = new Size(180, 22);
             editToolStripMenuItem.Text = "Edit";
             editToolStripMenuItem.Click += editToolStripMenuItem_Click;
             // 
             // deleteToolStripMenuItem
             // 
+            deleteToolStripMenuItem.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            deleteToolStripMenuItem.Size = new Size(107, 22);
+            deleteToolStripMenuItem.Size = new Size(180, 22);
             deleteToolStripMenuItem.Text = "Delete";
             deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
             // 
@@ -608,18 +635,20 @@
             // label22
             // 
             label22.AutoSize = true;
-            label22.Location = new Point(13, 91);
+            label22.Font = new Font("Palatino Linotype", 9.75F);
+            label22.Location = new Point(6, 88);
             label22.Name = "label22";
-            label22.Size = new Size(81, 15);
+            label22.Size = new Size(89, 18);
             label22.TabIndex = 4;
             label22.Text = "DemoMonth2";
             // 
             // label21
             // 
             label21.AutoSize = true;
-            label21.Location = new Point(10, 41);
+            label21.Font = new Font("Palatino Linotype", 9.75F);
+            label21.Location = new Point(3, 37);
             label21.Name = "label21";
-            label21.Size = new Size(81, 15);
+            label21.Size = new Size(89, 18);
             label21.TabIndex = 3;
             label21.Text = "DemoMonth1";
             // 
@@ -628,7 +657,7 @@
             button7.BackColor = Color.RosyBrown;
             button7.FlatStyle = FlatStyle.Popup;
             button7.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button7.Location = new Point(102, 121);
+            button7.Location = new Point(79, 125);
             button7.Name = "button7";
             button7.Size = new Size(75, 23);
             button7.TabIndex = 2;
@@ -656,7 +685,7 @@
             button9.BackColor = Color.RosyBrown;
             button9.FlatStyle = FlatStyle.Popup;
             button9.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold);
-            button9.Location = new Point(1201, 112);
+            button9.Location = new Point(1285, 3);
             button9.Name = "button9";
             button9.Size = new Size(75, 23);
             button9.TabIndex = 8;
@@ -669,7 +698,7 @@
             button10.BackColor = Color.RosyBrown;
             button10.FlatStyle = FlatStyle.Popup;
             button10.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold);
-            button10.Location = new Point(1111, 112);
+            button10.Location = new Point(1195, 3);
             button10.Name = "button10";
             button10.Size = new Size(75, 23);
             button10.TabIndex = 9;
@@ -693,17 +722,18 @@
             tableLayoutPanel1.RowCount = 2;
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel1.Size = new Size(330, 64);
+            tableLayoutPanel1.Size = new Size(332, 64);
             tableLayoutPanel1.TabIndex = 10;
             // 
             // label2
             // 
             label2.AutoSize = true;
             label2.BackColor = Color.LightBlue;
+            label2.BorderStyle = BorderStyle.FixedSingle;
             label2.Font = new Font("Arial", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label2.Location = new Point(56, 51);
             label2.Name = "label2";
-            label2.Size = new Size(330, 24);
+            label2.Size = new Size(332, 26);
             label2.TabIndex = 0;
             label2.Text = "Implementation Timeline && Efforts";
             label2.TextAlign = ContentAlignment.MiddleCenter;

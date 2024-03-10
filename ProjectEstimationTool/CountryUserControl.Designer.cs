@@ -45,14 +45,14 @@
             button3 = new Button();
             button2 = new Button();
             textBox1 = new TextBox();
+            label3 = new Label();
+            label2 = new Label();
             panel2 = new Panel();
             textBox2 = new TextBox();
             label4 = new Label();
             button4 = new Button();
             label5 = new Label();
             button5 = new Button();
-            label3 = new Label();
-            label2 = new Label();
             button1 = new Button();
             label1 = new Label();
             button6 = new Button();
@@ -73,7 +73,7 @@
             dataGridView1.BackgroundColor = Color.White;
             dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle1.BackColor = Color.RosyBrown;
-            dataGridViewCellStyle1.Font = new Font("Palatino Linotype", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle1.Font = new Font("Palatino Linotype", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
             dataGridViewCellStyle1.SelectionBackColor = Color.RosyBrown;
             dataGridViewCellStyle1.SelectionForeColor = Color.Black;
@@ -92,7 +92,7 @@
             dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
             dataGridView1.DefaultCellStyle = dataGridViewCellStyle2;
             dataGridView1.EnableHeadersVisualStyles = false;
-            dataGridView1.Location = new Point(544, 83);
+            dataGridView1.Location = new Point(484, 83);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.ReadOnly = true;
             dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
@@ -105,7 +105,7 @@
             dataGridView1.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             dataGridView1.RowHeadersVisible = false;
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridView1.Size = new Size(245, 73);
+            dataGridView1.Size = new Size(288, 73);
             dataGridView1.TabIndex = 0;
             dataGridView1.CellContentClick += dataGridView1_CellContentClick;
             dataGridView1.CellMouseDown += dataGridView1_CellMouseDown;
@@ -143,22 +143,23 @@
             // 
             // contextMenuStrip1
             // 
+            contextMenuStrip1.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             contextMenuStrip1.Items.AddRange(new ToolStripItem[] { editToolStripMenuItem, deleteToolStripMenuItem });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(108, 48);
+            contextMenuStrip1.Size = new Size(117, 48);
             contextMenuStrip1.Opening += contextMenuStrip1_Opening;
             // 
             // editToolStripMenuItem
             // 
             editToolStripMenuItem.Name = "editToolStripMenuItem";
-            editToolStripMenuItem.Size = new Size(107, 22);
+            editToolStripMenuItem.Size = new Size(116, 22);
             editToolStripMenuItem.Text = "Edit";
             editToolStripMenuItem.Click += editToolStripMenuItem_Click;
             // 
             // deleteToolStripMenuItem
             // 
             deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            deleteToolStripMenuItem.Size = new Size(107, 22);
+            deleteToolStripMenuItem.Size = new Size(116, 22);
             deleteToolStripMenuItem.Text = "Delete";
             deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
             // 
@@ -173,7 +174,7 @@
             panel1.Controls.Add(textBox1);
             panel1.Controls.Add(label3);
             panel1.Controls.Add(label2);
-            panel1.Location = new Point(570, 207);
+            panel1.Location = new Point(491, 207);
             panel1.Name = "panel1";
             panel1.Size = new Size(330, 154);
             panel1.TabIndex = 1;
@@ -206,10 +207,32 @@
             // 
             // textBox1
             // 
+            textBox1.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             textBox1.Location = new Point(166, 66);
+            textBox1.MaxLength = 20;
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(135, 23);
+            textBox1.Size = new Size(135, 25);
             textBox1.TabIndex = 2;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Font = new Font("Palatino Linotype", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label3.Location = new Point(23, 71);
+            label3.Name = "label3";
+            label3.Size = new Size(109, 20);
+            label3.TabIndex = 1;
+            label3.Text = "Country Name";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Font = new Font("Palatino Linotype", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label2.Location = new Point(99, 13);
+            label2.Name = "label2";
+            label2.Size = new Size(131, 26);
+            label2.TabIndex = 0;
+            label2.Text = "Add Country";
             // 
             // panel2
             // 
@@ -218,23 +241,25 @@
             panel2.Controls.Add(button4);
             panel2.Controls.Add(label5);
             panel2.Controls.Add(button5);
-            panel2.Location = new Point(639, 178);
+            panel2.Location = new Point(553, 184);
             panel2.Name = "panel2";
             panel2.Size = new Size(324, 164);
             panel2.TabIndex = 3;
             // 
             // textBox2
             // 
+            textBox2.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             textBox2.Location = new Point(133, 79);
+            textBox2.MaxLength = 20;
             textBox2.Name = "textBox2";
-            textBox2.Size = new Size(142, 23);
+            textBox2.Size = new Size(142, 25);
             textBox2.TabIndex = 2;
             // 
             // label4
             // 
             label4.AutoSize = true;
             label4.Font = new Font("Palatino Linotype", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label4.Location = new Point(9, 82);
+            label4.Location = new Point(9, 81);
             label4.Name = "label4";
             label4.Size = new Size(109, 20);
             label4.TabIndex = 1;
@@ -276,32 +301,12 @@
             button5.UseVisualStyleBackColor = false;
             button5.Click += button5_Click;
             // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Font = new Font("Palatino Linotype", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label3.Location = new Point(42, 69);
-            label3.Name = "label3";
-            label3.Size = new Size(109, 20);
-            label3.TabIndex = 1;
-            label3.Text = "Country Name";
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Font = new Font("Palatino Linotype", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label2.Location = new Point(99, 13);
-            label2.Name = "label2";
-            label2.Size = new Size(131, 26);
-            label2.TabIndex = 0;
-            label2.Text = "Add Country";
-            // 
             // button1
             // 
             button1.BackColor = Color.RosyBrown;
             button1.FlatStyle = FlatStyle.Popup;
             button1.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold);
-            button1.Location = new Point(544, 178);
+            button1.Location = new Point(486, 178);
             button1.Name = "button1";
             button1.Size = new Size(61, 23);
             button1.TabIndex = 2;
@@ -314,7 +319,7 @@
             label1.AutoSize = true;
             label1.BackColor = Color.LightBlue;
             label1.Font = new Font("Palatino Linotype", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.Location = new Point(544, 27);
+            label1.Location = new Point(484, 27);
             label1.Name = "label1";
             label1.Size = new Size(219, 32);
             label1.TabIndex = 0;
@@ -325,9 +330,9 @@
             button6.BackColor = Color.RosyBrown;
             button6.FlatStyle = FlatStyle.Popup;
             button6.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold);
-            button6.Location = new Point(1184, 12);
+            button6.Location = new Point(1210, 3);
             button6.Name = "button6";
-            button6.Size = new Size(73, 23);
+            button6.Size = new Size(73, 34);
             button6.TabIndex = 4;
             button6.Text = "Previous";
             button6.UseVisualStyleBackColor = false;
@@ -338,9 +343,9 @@
             button7.BackColor = Color.RosyBrown;
             button7.FlatStyle = FlatStyle.Popup;
             button7.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold);
-            button7.Location = new Point(1267, 12);
+            button7.Location = new Point(1286, 3);
             button7.Name = "button7";
-            button7.Size = new Size(73, 23);
+            button7.Size = new Size(73, 34);
             button7.TabIndex = 5;
             button7.Text = "Next";
             button7.UseVisualStyleBackColor = false;

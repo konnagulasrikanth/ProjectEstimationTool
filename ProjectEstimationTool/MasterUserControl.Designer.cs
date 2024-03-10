@@ -28,11 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MasterUserControl));
             panel1 = new Panel();
             panel2 = new Panel();
             tableLayoutPanel1 = new TableLayoutPanel();
             label1 = new Label();
             panel4 = new Panel();
+            label2 = new Label();
             panel3 = new Panel();
             menuStrip1 = new MenuStrip();
             homeToolStripMenuItem = new ToolStripMenuItem();
@@ -57,6 +59,7 @@
             toolStripMenuItem5 = new ToolStripMenuItem();
             panel2.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
+            panel4.SuspendLayout();
             panel3.SuspendLayout();
             menuStrip1.SuspendLayout();
             SuspendLayout();
@@ -114,11 +117,23 @@
             // panel4
             // 
             panel4.BackColor = Color.White;
+            panel4.Controls.Add(label2);
             panel4.Location = new Point(-1, 47);
             panel4.Name = "panel4";
             panel4.Size = new Size(1367, 694);
             panel4.TabIndex = 3;
             panel4.Paint += panel4_Paint_1;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Font = new Font("Palatino Linotype", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label2.ForeColor = Color.Blue;
+            label2.Location = new Point(114, 51);
+            label2.Name = "label2";
+            label2.Size = new Size(799, 88);
+            label2.TabIndex = 0;
+            label2.Text = resources.GetString("label2.Text");
             // 
             // panel3
             // 
@@ -132,20 +147,20 @@
             // menuStrip1
             // 
             menuStrip1.BackColor = Color.RosyBrown;
-            menuStrip1.Dock = DockStyle.Fill;
-            menuStrip1.Font = new Font("Palatino Linotype", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            menuStrip1.Dock = DockStyle.None;
+            menuStrip1.Font = new Font("Palatino Linotype", 15.92F, FontStyle.Bold);
             menuStrip1.Items.AddRange(new ToolStripItem[] { homeToolStripMenuItem, configurationsToolStripMenuItem, scopeEffortToolStripMenuItem, timelineToolStripMenuItem, resourceCostingToolStripMenuItem, summaryToolStripMenuItem, toolStripMenuItem1, toolStripMenuItem2, toolStripMenuItem3, toolStripMenuItem4, toolStripMenuItem5 });
             menuStrip1.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(1084, 45);
+            menuStrip1.Size = new Size(1235, 40);
             menuStrip1.TabIndex = 3;
             menuStrip1.Text = "menuStrip1";
             // 
             // homeToolStripMenuItem
             // 
             homeToolStripMenuItem.Name = "homeToolStripMenuItem";
-            homeToolStripMenuItem.Size = new Size(92, 41);
+            homeToolStripMenuItem.Size = new Size(85, 36);
             homeToolStripMenuItem.Text = "Home";
             homeToolStripMenuItem.Click += homeToolStripMenuItem_Click_1;
             // 
@@ -154,7 +169,7 @@
             configurationsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { effortToolStripMenuItem, productivityToolStripMenuItem, functionalAreaToolStripMenuItem, functionalSubAreaToolStripMenuItem, countryToolStripMenuItem, resourceTypeToolStripMenuItem, resourceLevelToolStripMenuItem, resourceRateToolStripMenuItem, softwareRateToolStripMenuItem });
             configurationsToolStripMenuItem.Font = new Font("Palatino Linotype", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
             configurationsToolStripMenuItem.Name = "configurationsToolStripMenuItem";
-            configurationsToolStripMenuItem.Size = new Size(189, 41);
+            configurationsToolStripMenuItem.Size = new Size(189, 36);
             configurationsToolStripMenuItem.Text = "Configurations";
             configurationsToolStripMenuItem.Click += configurationsToolStripMenuItem_Click_2;
             // 
@@ -224,14 +239,14 @@
             // scopeEffortToolStripMenuItem
             // 
             scopeEffortToolStripMenuItem.Name = "scopeEffortToolStripMenuItem";
-            scopeEffortToolStripMenuItem.Size = new Size(184, 41);
+            scopeEffortToolStripMenuItem.Size = new Size(170, 36);
             scopeEffortToolStripMenuItem.Text = "Scope && Effort";
             scopeEffortToolStripMenuItem.Click += scopeEffortToolStripMenuItem_Click_1;
             // 
             // timelineToolStripMenuItem
             // 
             timelineToolStripMenuItem.Name = "timelineToolStripMenuItem";
-            timelineToolStripMenuItem.Size = new Size(123, 41);
+            timelineToolStripMenuItem.Size = new Size(116, 36);
             timelineToolStripMenuItem.Text = "Timeline";
             timelineToolStripMenuItem.Click += timelineToolStripMenuItem_Click_1;
             // 
@@ -240,44 +255,45 @@
             resourceCostingToolStripMenuItem.Font = new Font("Palatino Linotype", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
             resourceCostingToolStripMenuItem.Name = "resourceCostingToolStripMenuItem";
             resourceCostingToolStripMenuItem.RightToLeft = RightToLeft.No;
-            resourceCostingToolStripMenuItem.Size = new Size(216, 41);
+            resourceCostingToolStripMenuItem.Size = new Size(216, 36);
             resourceCostingToolStripMenuItem.Text = "Resource Costing";
             resourceCostingToolStripMenuItem.Click += resourceCostingToolStripMenuItem_Click_1;
             // 
             // summaryToolStripMenuItem
             // 
             summaryToolStripMenuItem.Name = "summaryToolStripMenuItem";
-            summaryToolStripMenuItem.Size = new Size(132, 41);
+            summaryToolStripMenuItem.Size = new Size(122, 36);
             summaryToolStripMenuItem.Text = "Summary";
             summaryToolStripMenuItem.Click += summaryToolStripMenuItem_Click;
             // 
             // toolStripMenuItem1
             // 
             toolStripMenuItem1.Name = "toolStripMenuItem1";
-            toolStripMenuItem1.Size = new Size(12, 41);
+            toolStripMenuItem1.Size = new Size(161, 36);
+            toolStripMenuItem1.Text = "Landing Page";
             // 
             // toolStripMenuItem2
             // 
             toolStripMenuItem2.Font = new Font("Arial", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             toolStripMenuItem2.Name = "toolStripMenuItem2";
-            toolStripMenuItem2.Size = new Size(12, 41);
+            toolStripMenuItem2.Size = new Size(12, 36);
             // 
             // toolStripMenuItem3
             // 
             toolStripMenuItem3.Checked = true;
             toolStripMenuItem3.CheckState = CheckState.Indeterminate;
             toolStripMenuItem3.Name = "toolStripMenuItem3";
-            toolStripMenuItem3.Size = new Size(12, 41);
+            toolStripMenuItem3.Size = new Size(12, 36);
             // 
             // toolStripMenuItem4
             // 
             toolStripMenuItem4.Name = "toolStripMenuItem4";
-            toolStripMenuItem4.Size = new Size(12, 41);
+            toolStripMenuItem4.Size = new Size(12, 36);
             // 
             // toolStripMenuItem5
             // 
             toolStripMenuItem5.Name = "toolStripMenuItem5";
-            toolStripMenuItem5.Size = new Size(12, 41);
+            toolStripMenuItem5.Size = new Size(12, 36);
             // 
             // MasterUserControl
             // 
@@ -291,6 +307,8 @@
             panel2.ResumeLayout(false);
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
+            panel4.ResumeLayout(false);
+            panel4.PerformLayout();
             panel3.ResumeLayout(false);
             panel3.PerformLayout();
             menuStrip1.ResumeLayout(false);
@@ -326,5 +344,6 @@
         private ToolStripMenuItem toolStripMenuItem5;
         private TableLayoutPanel tableLayoutPanel1;
         private Label label1;
+        private Label label2;
     }
 }

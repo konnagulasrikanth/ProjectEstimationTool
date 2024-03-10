@@ -31,7 +31,6 @@ namespace ProjectEstimationTool
 
 
 
-        static string ConnectionString = @"Data Source=ICS-LT-64146D3\SQLEXPRESS;Initial Catalog=ProjectEstimationToolMaster;Integrated Security=True;TrustServerCertificate=True";
         public void UpdateProjectLabel(string projectname, int projectid)
         {
             Projectid = projectid;
@@ -87,7 +86,7 @@ namespace ProjectEstimationTool
                 if (effortdata != null)
                 {
                     textBox12.Text = effortdata.EffortName;
-
+                    effortId = effortdata.EffortId; 
                     textBox11.Text = effortdata.ActualEffort.ToString();
                     textBox10.Text = effortdata.Ba.ToString();
                     textBox9.Text = effortdata.Qa.ToString();
@@ -125,7 +124,14 @@ namespace ProjectEstimationTool
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (effortId != 0)
+
+            effortdata = dgv1.SelectedRows[0].DataBoundItem as EffortType;
+
+            if (effortdata != null)
+            {
+                effortId = effortdata.EffortId;
+            }
+                if (effortId != 0)
             {
                 EffortType EffortTypeToDelete = db.EffortType.FirstOrDefault(fs => fs.EffortId == effortId);
 
@@ -139,8 +145,11 @@ namespace ProjectEstimationTool
                         db.SaveChanges();
                         RefreshData();
                     }
-                    // No need for an else block if you don't have specific actions for DialogResult.No
                 }
+            }
+            else
+            {
+                MessageBox.Show("Effort ID is not coming please check the code");
             }
         }
 
@@ -148,10 +157,14 @@ namespace ProjectEstimationTool
         {
 
         }
-        // Helper method to check if the effort name already exists
-        private bool EffortNameExists(string effortName)
+        private bool EffortNameExists(string effortName, int currentEffortId)
         {
-            var existingEffort = db.EffortType.FirstOrDefault(t => t.EffortName == effortName && t.ProjectId == Form1.projectid);
+            var existingEffort = db.EffortType
+         .FirstOrDefault(t =>
+             t.EffortName.ToLower() == effortName.ToLower() &&
+             t.ProjectId == Form1.projectid &&
+             t.EffortId != currentEffortId);
+
             return existingEffort != null;
         }
 
@@ -175,7 +188,7 @@ namespace ProjectEstimationTool
                     string.IsNullOrWhiteSpace(devPercentageStr) ||
                     string.IsNullOrWhiteSpace(rulesStr))
                 {
-                    MessageBox.Show("Error: All fields must be entered.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("All fields must be entered.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
@@ -186,28 +199,32 @@ namespace ProjectEstimationTool
                     !int.TryParse(devPercentageStr, out int devPercentage) ||
                     !int.TryParse(rulesStr, out int rules))
                 {
-                    MessageBox.Show("Error: Numeric fields must contain valid numeric values.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Numeric fields must contain valid numeric values.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    textBox2.Clear();
+                    textBox3.Clear();
+                    textBox4.Clear();
+                    textBox5.Clear();
+                    textBox6.Clear();
                     return;
                 }
 
-                // Check if the effort name contains only alphabets
-                if (!effortName.All(char.IsLetter))
-                {
-                    MessageBox.Show("Error: Effort Name should only contain alphabets.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
+       
 
                 // Check if the individual percentages for BA, QA, and Dev exceed 100%
-                if (baPercentage + qaPercentage + devPercentage > 100)
+                if (baPercentage + qaPercentage + devPercentage != 100)
                 {
-                    MessageBox.Show("Error: The sum of BA, QA, and Dev percentages should not exceed 100%.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("The sum of BA, QA, and Dev percentages should not exceed 100%.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-
-                // Check if the effort name already exists (case-insensitive)
-                if (EffortNameExists(effortName))
+                if (!System.Text.RegularExpressions.Regex.IsMatch(effortName, "^[a-zA-Z\\s\\-]+$"))
                 {
-                    MessageBox.Show("Error: Effort Type with the same name already exists. Choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Effort Name should only contain alphabets, one space, or hyphen.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                // Check if the effort name already exists (case-insensitive)
+                if (EffortNameExists(effortName,effortId))
+                {
+                    MessageBox.Show("Effort type with the same name already exists. Choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
@@ -236,6 +253,10 @@ namespace ProjectEstimationTool
                 textBox6.Clear();
                 panel1.Visible = false;
             }
+            catch (OverflowException)
+            {
+                MessageBox.Show("The entered value is too large, please check and enter the value", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -247,6 +268,7 @@ namespace ProjectEstimationTool
 
         private void button2_Click(object sender, EventArgs e)
         {
+            button1.BackColor = Color.RosyBrown;
             panel1.Visible = false;
         }
 
@@ -269,9 +291,21 @@ namespace ProjectEstimationTool
                     string.IsNullOrWhiteSpace(devPercentageStr) ||
                     string.IsNullOrWhiteSpace(rulesStr))
                 {
-                    MessageBox.Show("Error: All fields must be entered.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("All fields must be entered.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+                if (!System.Text.RegularExpressions.Regex.IsMatch(effortName, "^[a-zA-Z\\s\\-]+$"))
+                {
+                    MessageBox.Show("Effort Name should only contain alphabets, one space, or hyphen.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                // Check if the effort name already exists (case-insensitive)
+                if (EffortNameExists(effortName, effortId))
+                {
+                    MessageBox.Show("Effort type with the same name already exists.Pleas choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
 
                 // Check if the input contains only numeric characters for numeric fields
                 if (!int.TryParse(actualEffortStr, out int actualEffort) ||
@@ -285,7 +319,7 @@ namespace ProjectEstimationTool
                 }
 
                 // Check if the individual percentages for BA, QA, and Dev exceed 100%
-                if (baPercentage + qaPercentage + devPercentage > 100)
+                if (baPercentage + qaPercentage + devPercentage != 100)
                 {
                     MessageBox.Show("Error: The sum of BA, QA, and Dev percentages should equal 100%.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
@@ -303,6 +337,10 @@ namespace ProjectEstimationTool
                 RefreshData();
                 panel2.Visible = false;
                 MessageBox.Show("Effort Type updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (OverflowException)
+            {
+                MessageBox.Show("The entered value is too large, please check and enter the value", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (Exception ex)
             {

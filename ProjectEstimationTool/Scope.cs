@@ -16,7 +16,7 @@ namespace ProjectEstimationTool
 {
     public partial class Scope : UserControl
     {
-        private ScopeAndEffort s;
+        private ScopeAndEffort s = new ScopeAndEffort();
         ProjectEstimationToolMasterContext db = new ProjectEstimationToolMasterContext();
         BindingList<ScopeAndEffort> ScopeEffortList;
 
@@ -24,6 +24,7 @@ namespace ProjectEstimationTool
         {
             InitializeComponent();
             ScopeEffortList = new BindingList<ScopeAndEffort>();
+
 
             dataGridView1.DataSource = ScopeEffortList;
             dataGridView1.ContextMenuStrip = contextMenuStrip1;
@@ -33,12 +34,13 @@ namespace ProjectEstimationTool
         {
             panel2.Visible = false;
             panel3.Visible = false;
+
             dataGridView1.EnableHeadersVisualStyles = false;
             dataGridView1.ColumnHeadersDefaultCellStyle.BackColor = Color.RosyBrown;
             dataGridView1.Columns[0].HeaderCell.Style.BackColor = Color.Magenta;
             dataGridView1.Columns[1].HeaderCell.Style.BackColor = Color.Yellow;
             loadScopeData();
-            
+
 
             UpdateData();
             SetTotals();
@@ -65,12 +67,24 @@ namespace ProjectEstimationTool
         private void button1_Click(object sender, EventArgs e)
         {
             button1.BackColor = Color.LightBlue;
+            // Clear the TextBoxes for the next entry
+            comboBox1.SelectedIndex = -1;
+            comboBox2.SelectedIndex = -1;
+            comboBox3.SelectedIndex = -1;
+            textBox1.Clear();
+            textBox2.Clear();
+            textBox3.Clear();
+            textBox4.Clear();
+            richTextBox1.Clear();
+            panel2.Visible = false;
+
             panel2.Visible = true;
             panel3.Visible = false;
             textBox1.Visible = true;
             textBox1.Text = "";
             label5.Visible = true;
             label25.Visible = true;
+
 
 
             var ef = db.FunctionalArea.Where(t => t.ProjectId == Form1.projectid).Select(t => t.FunctionalAreaName).Distinct();
@@ -94,21 +108,75 @@ namespace ProjectEstimationTool
             button1.BackColor = Color.RosyBrown;
             try
             {
-                
-                var FunctAreaid = db.FunctionalArea.Where(p => p.ProjectId == Form1.projectid && p.FunctionalAreaName == comboBox1.SelectedItem.ToString()).Select(p => p.FunctionalAreaId).FirstOrDefault();
-                var FunclSubAreaid = db.FunctionalSubArea.Where(p => p.ProjectId ==Form1.projectid && p.FunctionalSubAreaName == comboBox3.SelectedItem.ToString()).Select(p => p.FunctionalSubAreaId).FirstOrDefault();
-                var Effortid = db.EffortType.Where(p => p.ProjectId == Form1.projectid && p.EffortName == comboBox2.SelectedItem.ToString()).Select(p => p.EffortId).FirstOrDefault();
+                if (string.IsNullOrEmpty(comboBox1.SelectedItem?.ToString()) ||
+                    string.IsNullOrEmpty(comboBox2.SelectedItem?.ToString()) ||
+                    string.IsNullOrEmpty(comboBox3.SelectedItem?.ToString()) ||
+                    string.IsNullOrEmpty(textBox1.Text))
+                {
+                    MessageBox.Show("Please select the mandatory fields", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Check if textBox1 contains only numeric values
+                if (!int.TryParse(textBox1.Text, out _))
+                {
+                    MessageBox.Show("Number of Operations must be a numeric value.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                if (!int.TryParse(textBox1.Text, out int numberOfOperations) || numberOfOperations <= 0)
+                {
+                    MessageBox.Show("Number of Operations is a mandatory field and must be greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                var FunctAreaid = db.FunctionalArea
+                    .Where(p => p.ProjectId == Form1.projectid && p.FunctionalAreaName == comboBox1.SelectedItem.ToString())
+                    .Select(p => p.FunctionalAreaId)
+                    .FirstOrDefault();
+
+                var FunclSubAreaid = db.FunctionalSubArea
+                    .Where(p => p.ProjectId == Form1.projectid && p.FunctionalSubAreaName == comboBox3.SelectedItem.ToString())
+                    .Select(p => p.FunctionalSubAreaId)
+                    .FirstOrDefault();
+
+                var Effortid = db.EffortType
+                    .Where(p => p.ProjectId == Form1.projectid && p.EffortName == comboBox2.SelectedItem.ToString())
+                    .Select(p => p.EffortId)
+                    .FirstOrDefault();
+                var selectedEffort = db.EffortType
+                        .Where(t => t.EffortId == Effortid && t.ProjectId == Form1.projectid)
+                        .FirstOrDefault();
+                int BarefactorPercentage = int.TryParse(textBox2.Text, out int basRefactor) ? basRefactor : 0;
+                int DevRefactorPercentage = int.TryParse(textBox3.Text, out int devsRefactor) ? devsRefactor : 0;
+                int QarefactorPercentage = int.TryParse(textBox4.Text, out int qasRefactor) ? qasRefactor : 0;
+
+                decimal Bahrs = Convert.ToDecimal(selectedEffort.ActualEffort * (selectedEffort.Ba / 100.0)) * int.Parse(textBox1.Text);
+                decimal Devhrs = Convert.ToDecimal(selectedEffort.ActualEffort * (selectedEffort.Dev / 100.0)) * int.Parse(textBox1.Text);
+                decimal Qahrs = Convert.ToDecimal(selectedEffort.ActualEffort * (selectedEffort.Qa / 100.0)) * int.Parse(textBox1.Text);
+                decimal BafinalHrs = (Bahrs - (decimal)(BarefactorPercentage / 100.0) * Bahrs);
+                decimal DevFinalHrs = (Devhrs - (decimal)(DevRefactorPercentage / 100.0) * Devhrs);
+                decimal QafinalHrs = (Qahrs - (decimal)(QarefactorPercentage / 100.0) * Qahrs);
+                int Effort = (int)((Bahrs - (decimal)(BarefactorPercentage / 100.0) * Bahrs) +
+                    (Devhrs - (decimal)(DevRefactorPercentage / 100.0) * Devhrs) +
+                    (Qahrs - (decimal)(QarefactorPercentage / 100.0) * Qahrs));
+
+
+
                 s = new ScopeAndEffort
                 {
-
                     ProjectId = Form1.projectid,
-                   
                     FunctionalAreaName = comboBox1.SelectedItem?.ToString(),
                     EffortName = comboBox2.SelectedItem?.ToString(),
                     FunctionalSubAreaName = comboBox3.SelectedItem?.ToString(),
                     FunctionalAreaId = FunctAreaid,
                     FunctionalSubAreaId = FunclSubAreaid,
                     EffortId = Effortid,
+                    BaHrs = Bahrs,
+                    BafinalHrs = BafinalHrs,
+                    DevHrs = Devhrs,
+                    DevFinalHrs = DevFinalHrs,
+                    QaHrs = Qahrs,
+                    QafinalHrs = QafinalHrs,
+                    Effort = Effort,
                     NumberOfOperations = int.TryParse(textBox1.Text, out int operations) ? operations : 0,
                     BarefactorPercentage = int.TryParse(textBox2.Text, out int baRefactor) ? baRefactor : 0,
                     DevRefactorPercentage = int.TryParse(textBox3.Text, out int devRefactor) ? devRefactor : 0,
@@ -116,8 +184,8 @@ namespace ProjectEstimationTool
                     Description = richTextBox1.Text
                 };
 
-
                 // Validate refactor percentages individually (0 to 100) and collectively (not exceeding 300)
+
                 if (s.BarefactorPercentage < 0) s.BarefactorPercentage = 0;
                 if (s.DevRefactorPercentage < 0) s.DevRefactorPercentage = 0;
                 if (s.QarefactorPercentage < 0) s.QarefactorPercentage = 0;
@@ -128,92 +196,34 @@ namespace ProjectEstimationTool
 
                 if ((s.BarefactorPercentage > 100 || s.DevRefactorPercentage > 100 || s.QarefactorPercentage > 100))
                 {
-
                     s.BarefactorPercentage = 100;
                     s.DevRefactorPercentage = 100;
                     s.QarefactorPercentage = 100;
                 }
-                var existingRecord = db.ScopeAndEffort
-           .Where(se => se.ProjectId == s.ProjectId &&
-                        se.FunctionalAreaName == s.FunctionalAreaName &&
-                        se.EffortName == s.EffortName &&
-                        se.FunctionalSubAreaName == s.FunctionalSubAreaName)
-           .FirstOrDefault();
-                if (s.NumberOfOperations <= 0)
-                {
-                    MessageBox.Show("Number of Operations is a mandatory field and must be greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                else if (existingRecord != null)
-                {
-                    MessageBox.Show("This combination already exists in the ScopeAndEffort table.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
 
-                else
-                {
-                    // Continue with adding the new record
-                    var selectedEffort1 = db.EffortType
-                        .Where(t => t.EffortName == s.EffortName && t.ProjectId == s.ProjectId)
-                        .FirstOrDefault();
+                db.ScopeAndEffort.Add(s);
 
+                db.SaveChanges();
+                SetTotals();
 
-                    // Check if the selectedEffort is not null
-                    var selectedEffort = db.EffortType
-                    .Where(t => t.EffortName == s.EffortName && t.ProjectId == s.ProjectId)
-                    .FirstOrDefault();
+                loadScopeData();
+                // Clear the TextBoxes for the next entry
+                comboBox1.SelectedIndex = -1;
+                comboBox2.SelectedIndex = -1;
+                comboBox3.SelectedIndex = -1;
+                textBox1.Clear();
+                textBox2.Clear();
+                textBox3.Clear();
+                textBox4.Clear();
+                richTextBox1.Clear();
+                panel2.Visible = false;
 
-
-
-                    if (selectedEffort != null)
-                    {
-                        // Update the existing record or add a new one
-                        // Update the existing record
-                        Decimal Bahrs = Convert.ToDecimal(selectedEffort.ActualEffort * (selectedEffort.Ba / 100.0) * s.NumberOfOperations);
-                        Decimal Devhrs = Convert.ToDecimal(selectedEffort.ActualEffort * (selectedEffort.Dev / 100.0) * s.NumberOfOperations);
-                        Decimal Qahrs = Convert.ToDecimal(selectedEffort.ActualEffort * (selectedEffort.Qa / 100.0) * s.NumberOfOperations);
-
-
-                        s.BaHrs = Bahrs;
-                        s.DevHrs = Devhrs;
-                        s.QaHrs = Qahrs;
-                        s.BafinalHrs = (Bahrs - (decimal)(s.BarefactorPercentage / 100.0) * Bahrs);
-                        s.DevFinalHrs = (Devhrs - (decimal)(s.DevRefactorPercentage / 100.0) * Devhrs);
-                        s.QafinalHrs = (Qahrs - (decimal)(s.QarefactorPercentage / 100.0) * Qahrs);
-                        s.Effort = Convert.ToInt32(Bahrs - ((decimal)(s.BarefactorPercentage / 100.0) * Bahrs) +
-                                     (Devhrs - (decimal)(s.DevRefactorPercentage / 100.0) * Devhrs) +
-                                     (Qahrs - (decimal)(s.QarefactorPercentage / 100.0) * Qahrs));
-
-
-
-                        db.ScopeAndEffort.Add(s);
-
-                        db.SaveChanges();
-                        SetTotals();
-
-                        loadScopeData();
-
-                        // Clear the TextBoxes for the next entry
-                        comboBox1.SelectedIndex = -1;
-                        comboBox2.SelectedIndex = -1;
-                        comboBox3.SelectedIndex = -1;
-                        textBox1.Clear();
-                        textBox2.Clear();
-                        textBox3.Clear();
-                        textBox4.Clear();
-                        richTextBox1.Clear();
-                        panel2.Visible = false;
-
-
-                    }
-                    else
-                    {
-                        MessageBox.Show("Effort not found in the EffortType table.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"An error occurred: {ex.Message} ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
         }
 
 
@@ -284,13 +294,53 @@ namespace ProjectEstimationTool
 
         private void button3_Click(object sender, EventArgs e)
         {
-            string effort = comboBox5.SelectedItem.ToString();
+
+            string effort = comboBox5.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(effort) ||
+                string.IsNullOrEmpty(comboBox6.SelectedItem?.ToString()) ||
+                string.IsNullOrEmpty(comboBox4.SelectedItem?.ToString()) ||
+                string.IsNullOrEmpty(textBox9.Text) ||
+                string.IsNullOrEmpty(textBox8.Text) ||
+                string.IsNullOrEmpty(textBox7.Text) ||
+                string.IsNullOrEmpty(textBox10.Text))
+            {
+                MessageBox.Show("Please fill in all the mandatory fields.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Validate if numeric and greater than 0
+            if (!int.TryParse(textBox10.Text, out int numberOfOperations) || numberOfOperations <= 0)
+            {
+                MessageBox.Show("Number of Operations must be a numeric value greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+  
+
+            // Validate refactor percentages as numeric values (default to 0 if null or not numeric)
+            int.TryParse(textBox9.Text, out int baRefactor);
+            int.TryParse(textBox8.Text, out int devRefactor);
+            int.TryParse(textBox7.Text, out int qaRefactor);
+
+            // Ensure refactor percentages are within the valid range (0 to 100)
+            baRefactor = Math.Max(0, Math.Min(100, baRefactor));
+            devRefactor = Math.Max(0, Math.Min(100, devRefactor));
+            qaRefactor = Math.Max(0, Math.Min(100, qaRefactor));
+            var Effortid = db.EffortType.Where(p => p.ProjectId == Form1.projectid && p.EffortName == comboBox5.SelectedItem.ToString()).Select(p => p.EffortId).FirstOrDefault();
+
+
+            var existingRecord = db.EffortType
+                .FirstOrDefault(et => et.EffortName == comboBox5.SelectedItem.ToString() && et.ProjectId == Form1.projectid && et.EffortId != Effortid);
+
+            if (existingRecord != null)
+            {
+                MessageBox.Show("This combination already exists in the EffortType table.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return; // Exit the method to prevent adding the duplicate record
+            }
             var selectedEffort = from t in db.EffortType
                                  where t.EffortName == effort && t.ProjectId == Form1.projectid
                                  select t;
             var FunctAreaid = db.FunctionalArea.Where(p => p.ProjectId == Form1.projectid && p.FunctionalAreaName == comboBox6.SelectedItem.ToString()).Select(p => p.FunctionalAreaId).FirstOrDefault();
             var FunclSubAreaid = db.FunctionalSubArea.Where(p => p.ProjectId == Form1.projectid && p.FunctionalSubAreaName == comboBox4.SelectedItem.ToString()).Select(p => p.FunctionalSubAreaId).FirstOrDefault();
-            var Effortid = db.EffortType.Where(p => p.ProjectId == Form1.projectid && p.EffortName == comboBox5.SelectedItem.ToString()).Select(p => p.EffortId).FirstOrDefault();
             try
             {
 
@@ -299,18 +349,18 @@ namespace ProjectEstimationTool
                 s.EffortName = comboBox5.SelectedItem.ToString();
                 s.Description = richTextBox2.Text;
                 s.EffortId = Effortid;
-                s.FunctionalAreaId= FunctAreaid;
-                s.FunctionalSubAreaId= FunclSubAreaid;
-                s.BarefactorPercentage = int.Parse(textBox8.Text);
-                s.DevRefactorPercentage = int.Parse(textBox9.Text);
+                s.FunctionalAreaId = FunctAreaid;
+                s.FunctionalSubAreaId = FunclSubAreaid;
+                s.BarefactorPercentage = int.Parse(textBox9.Text);
+                s.DevRefactorPercentage = int.Parse(textBox8.Text);
                 s.QarefactorPercentage = int.Parse(textBox7.Text);
                 s.NumberOfOperations = int.Parse(textBox10.Text);
-               
+
 
                 if (s.ScopeAndEffortId == 0) // Check if it's a new record (ID is 0)
                 {
                     // Check if the same combination already exists
-                    var existingRecord = db.ScopeAndEffort
+                    var existingRecords = db.ScopeAndEffort
                         .Where(se => se.ProjectId == s.ProjectId &&
                                      se.FunctionalAreaName == s.FunctionalAreaName &&
                                      se.EffortName == s.EffortName &&
@@ -540,7 +590,7 @@ namespace ProjectEstimationTool
             }
         }
 
-     
+
 
         private void button8_Click(object sender, EventArgs e)
         {
@@ -690,6 +740,42 @@ namespace ProjectEstimationTool
         {
             UpdateRulesEdit();
 
+
+        }
+
+        private void richTextBox2_TextChanged(object sender, EventArgs e)
+        {
+            int i = richTextBox2.Text.Length;
+
+            if (i >= 0)
+            {
+                label38.Text = i.ToString();
+            }
+
+        }
+
+        private void label38_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label40_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void richTextBox1_TextChanged(object sender, EventArgs e)
+        {
+            int i = richTextBox1.Text.Length;
+
+            if (i >= 0)
+            {
+                label40.Text = i.ToString();
+            }
+        }
+
+        private void label18_Click(object sender, EventArgs e)
+        {
 
         }
     }

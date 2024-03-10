@@ -1,11 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Ocsp;
 using ProjectEstimationTool.Models;
+using ProjectEstimationTool.Properties;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -48,19 +51,29 @@ namespace ProjectEstimationTool
             panel1.Visible = true;
             panel2.Visible = false;
             comboBox1.Refresh();
-
-            var ef = db.Country.Select(t => t.CountryName).Distinct();
+            // Distinct values for Country
+            var ef = db.Country
+                .Where(c => c.ProjectId == Form1.projectid) // Filter by ProjectId
+                .Select(t => t.CountryName)
+                .Distinct();
             comboBox1.Items.Clear();
             comboBox1.Items.AddRange(ef.ToArray());
 
             // Distinct values for ResourceTypes
             comboBox2.Refresh();
-            var fa = db.ResourceTypes.Select(t => t.TypeName).Distinct();
+            var fa = db.ResourceTypes
+                .Where(rt => rt.ProjectId == Form1.projectid) // Filter by ProjectId
+                .Select(t => t.TypeName)
+                .Distinct();
             comboBox2.Items.Clear();
             comboBox2.Items.AddRange(fa.ToArray());
 
             // Distinct values for ResourceLevel
-            var fsa = db.ResourceLevel.Select(t => t.LevelName).Distinct();
+            comboBox3.Refresh();
+            var fsa = db.ResourceLevel
+                .Where(rl => rl.ProjectId == Form1.projectid) // Filter by ProjectId
+                .Select(t => t.LevelName)
+                .Distinct();
             comboBox3.Items.Clear();
             comboBox3.Items.AddRange(fsa.ToArray());
             LoadDefaultResourceData();
@@ -70,19 +83,79 @@ namespace ProjectEstimationTool
         {
 
         }
+        
+        private bool IsDuplicateResource(string country, string resourceType, string resourceLevel)
+        {
+            //int currentResourceId = db.Resource.Where(c=>c.CountryName==country&&c.TypeName ==resourceType && c.LevelName==resourceLevel).Select(p=>p.ResourceId).FirstOrDefault();
+            return db.Resource.Any(r =>
+                r.ProjectId == Form1.projectid &&
+                r.CountryName == country &&
+                r.TypeName == resourceType &&
+                r.LevelName == resourceLevel);
+        }
+        private bool IsDuplicateResourceEdit(string country, string resourceType, string resourceLevel, int currentResourceId)
+        {
+            // Check if the resource entry already exists in the database (case-insensitive)
+            var existingResource = db.Resource
+                .FirstOrDefault(r =>
+                    r.ProjectId == Form1.projectid &&
+                    r.CountryName.ToLower() == country.ToLower() &&
+                    r.TypeName.ToLower() == resourceType.ToLower() &&
+                    r.LevelName.ToLower() == resourceLevel.ToLower() &&
+                    r.ResourceId != currentResourceId);
+
+            return existingResource != null;
+        }
+
 
         private void button2_Click(object sender, EventArgs e)
         {
             
+          
+            try
             {
-                //if (IsDuplicateResource(comboBox1.SelectedItem.ToString(), comboBox2.SelectedItem.ToString(), comboBox3.SelectedItem.ToString()))
-                //{
-                //    MessageBox.Show("Duplicate resource entry found. Please choose different values.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                //    return;
-                //}
+                // Validate that a country is selected
+                if (comboBox1.SelectedIndex == -1)
+                {
+                    MessageBox.Show("Please select a country.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Validate that a resource type is selected
+                if (comboBox2.SelectedIndex == -1)
+                {
+                    MessageBox.Show("Please select a resource type.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Validate that a resource level is selected
+                if (comboBox3.SelectedIndex == -1)
+                {
+                    MessageBox.Show("Please select a resource level.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                // Check for duplicate entry
+                if (IsDuplicateResource(comboBox1.SelectedItem.ToString(), comboBox2.SelectedItem.ToString(), comboBox3.SelectedItem.ToString()))
+                {
+                    MessageBox.Show("Duplicate resource entry found. Please choose different values.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                if (string.IsNullOrWhiteSpace(textBox1.Text))
+                {
+                    MessageBox.Show("Please enter an hourly rate.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Validate that the hourly rate is a valid integer
+                if (!int.TryParse(textBox1.Text, out int hourlyRate))
+                {
+                    MessageBox.Show("Please enter a valid hourly rate.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
                 var countryid = db.Country.Where(p => p.ProjectId == Form1.projectid && p.CountryName == comboBox1.SelectedItem.ToString()).Select(p => p.CountryId).FirstOrDefault();
-                var reslevelid = db.ResourceLevel.Where(p => p.ProjectId == Form1.projectid && p.LevelName == comboBox2.SelectedItem.ToString()).Select(p => p.LevelId).FirstOrDefault();
-                var restypeid = db.ResourceTypes.Where(p => p.ProjectId == Form1.projectid && p.TypeName == comboBox3.SelectedItem.ToString()).Select(p => p.ResourceTypeId).FirstOrDefault();
+                var reslevelid = db.ResourceLevel.Where(p => p.ProjectId == Form1.projectid && p.LevelName == comboBox3.SelectedItem.ToString()).Select(p => p.LevelId).FirstOrDefault();
+                var restypeid = db.ResourceTypes.Where(p => p.ProjectId == Form1.projectid && p.TypeName == comboBox2.SelectedItem.ToString()).Select(p => p.ResourceTypeId).FirstOrDefault();
 
                 var res = new Resource
                 {
@@ -93,7 +166,7 @@ namespace ProjectEstimationTool
                     CountryName = comboBox1.SelectedItem.ToString(),
                     TypeName = comboBox2.SelectedItem.ToString(),
                     LevelName = comboBox3.SelectedItem.ToString(),
-                    HourlyRate = int.Parse(textBox1.Text),
+                    HourlyRate = int.Parse(textBox1.Text.Trim()),
                 };
                 db.Resource.Add(res);
                 db.SaveChanges();
@@ -102,6 +175,11 @@ namespace ProjectEstimationTool
 
                 panel1.Visible = false;
             }
+            catch
+            (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void editToolStripMenuItem_Click(object sender, EventArgs e)
@@ -109,17 +187,23 @@ namespace ProjectEstimationTool
             panel1.Visible = false;
             panel2.Visible = true;
 
-            var ef = db.Country.Select(t => t.CountryName).Distinct();
+            var ef = db.Country
+                     .Where(c => c.ProjectId == Form1.projectid) // Filter by ProjectId
+                     .Select(t => t.CountryName)
+                     .Distinct();
             comboBox6.Items.Clear();
             comboBox6.Items.AddRange(ef.ToArray());
 
-            // Distinct values for ResourceTypes
-            var fa = db.ResourceTypes.Select(t => t.TypeName).Distinct();
+            var fa = db.ResourceTypes
+                         .Where(rt => rt.ProjectId == Form1.projectid) // Filter by ProjectId
+                         .Select(t => t.TypeName)
+                         .Distinct();
             comboBox5.Items.Clear();
             comboBox5.Items.AddRange(fa.ToArray());
-
-            // Distinct values for ResourceLevel
-            var fsa = db.ResourceLevel.Select(t => t.LevelName).Distinct();
+            var fsa = db.ResourceLevel
+                           .Where(rl => rl.ProjectId == Form1.projectid) // Filter by ProjectId
+                           .Select(t => t.LevelName)
+                           .Distinct();
             comboBox4.Items.Clear();
             comboBox4.Items.AddRange(fsa.ToArray());
 
@@ -183,14 +267,49 @@ namespace ProjectEstimationTool
 
         private void button3_Click(object sender, EventArgs e)
         {
-           
+            try
             {
-                //// Check for duplicate entry
-                //if (IsDuplicateResource(comboBox6.SelectedItem.ToString(), comboBox5.SelectedItem.ToString(), comboBox4.SelectedItem.ToString()))
-                //{
-                //    MessageBox.Show("Duplicate resource entry found. Please choose different values.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                //    return;
-                //}
+                // Validate that a country is selected
+                if (comboBox6.SelectedIndex == -1)
+                {
+                    MessageBox.Show("Please select a country.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Validate that a resource type is selected
+                if (comboBox5.SelectedIndex == -1)
+                {
+                    MessageBox.Show("Please select a resource type.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Validate that a resource level is selected
+                if (comboBox4.SelectedIndex == -1)
+                {
+                    MessageBox.Show("Please select a resource level.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Check for duplicate entry
+                if (IsDuplicateResourceEdit(comboBox6.SelectedItem.ToString(), comboBox5.SelectedItem.ToString(), comboBox4.SelectedItem.ToString(),selecteddata.ResourceId))
+                {
+                    MessageBox.Show("Duplicate resource entry found. Please choose different values.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                if (string.IsNullOrWhiteSpace(textBox2.Text))
+                {
+                    MessageBox.Show("Please enter an hourly rate.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+
+                // Validate that the hourly rate is a valid integer
+                if (!int.TryParse(textBox2.Text, out int hourlyRate))
+                {
+                    MessageBox.Show("Please enter a valid hourly rate.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
                 var countryid = db.Country.Where(p => p.ProjectId == Form1.projectid && p.CountryName == comboBox6.SelectedItem.ToString()).Select(p => p.CountryId).FirstOrDefault();
                 var reslevelid = db.ResourceLevel.Where(p => p.ProjectId == Form1.projectid && p.LevelName == comboBox4.SelectedItem.ToString()).Select(p => p.LevelId).FirstOrDefault();
                 var restypeid = db.ResourceTypes.Where(p => p.ProjectId == Form1.projectid && p.TypeName == comboBox5.SelectedItem.ToString()).Select(p => p.ResourceTypeId).FirstOrDefault();
@@ -200,10 +319,15 @@ namespace ProjectEstimationTool
                 selecteddata.CountryId = countryid;
                 selecteddata.TypeName = comboBox5.SelectedItem.ToString();
                 selecteddata.LevelName = comboBox4.SelectedItem.ToString();
-                selecteddata.HourlyRate = int.Parse(textBox2.Text);
+                selecteddata.HourlyRate = int.Parse(textBox2.Text.Trim());
                 db.SaveChanges();
                 panel2.Visible = false;
                 LoadDefaultResourceData();
+            }
+            catch
+            (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -266,28 +390,8 @@ namespace ProjectEstimationTool
             this.Hide();
             this.Parent.Controls.Add(sr);
         }
-        private bool IsDuplicateResource(string country, string type, string level)
-        {
-            // Check if the resource with the same country, type, and level already exists
-            return db.Resource.Any(r => r.ProjectId == Form1.projectid && r.CountryName == country && r.TypeName == type && r.LevelName == level);
-        }
-        //private bool ValidateInput()
-        //{
-        //    //// Validate that all the required fields are selected
-        //    //if (comboBox1.SelectedItem == null || comboBox2.SelectedItem == null || comboBox3.SelectedItem == null || string.IsNullOrWhiteSpace(textBox1.Text))
-        //    //{
-        //    //    MessageBox.Show("Please fill in all the required fields.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //    //    return false;
-        //    //}
-
-        //    //// Validate that HourlyRate is numeric
-        //    //if (!int.TryParse(textBox1.Text, out _))
-        //    //{
-        //    //    MessageBox.Show("Please enter a valid numeric value for Hourly Rate.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //    //    return false;
-            
-            
-        //}
+  
+      
 
         private void comboBox4_SelectedIndexChanged(object sender, EventArgs e)
         {

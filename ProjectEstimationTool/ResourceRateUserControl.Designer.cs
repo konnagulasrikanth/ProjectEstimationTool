@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
             dataGridView1 = new DataGridView();
             resourceIdDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             projectIdDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
@@ -85,25 +85,25 @@
             dataGridView1.AutoGenerateColumns = false;
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridView1.BackgroundColor = Color.White;
-            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = Color.RosyBrown;
-            dataGridViewCellStyle3.Font = new Font("Palatino Linotype", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle3.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle3.SelectionBackColor = Color.RosyBrown;
-            dataGridViewCellStyle3.SelectionForeColor = Color.Black;
-            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.True;
-            dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = Color.RosyBrown;
+            dataGridViewCellStyle1.Font = new Font("Palatino Linotype", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = Color.RosyBrown;
+            dataGridViewCellStyle1.SelectionForeColor = Color.Black;
+            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
+            dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridView1.Columns.AddRange(new DataGridViewColumn[] { resourceIdDataGridViewTextBoxColumn, projectIdDataGridViewTextBoxColumn, countryNameDataGridViewTextBoxColumn, typeNameDataGridViewTextBoxColumn, levelNameDataGridViewTextBoxColumn, hourlyRateDataGridViewTextBoxColumn });
             dataGridView1.DataSource = resourceBindingSource;
-            dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = SystemColors.Window;
-            dataGridViewCellStyle4.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle4.ForeColor = SystemColors.ControlText;
-            dataGridViewCellStyle4.SelectionBackColor = Color.LightBlue;
-            dataGridViewCellStyle4.SelectionForeColor = Color.Black;
-            dataGridViewCellStyle4.WrapMode = DataGridViewTriState.False;
-            dataGridView1.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = SystemColors.Window;
+            dataGridViewCellStyle2.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle2.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = Color.LightBlue;
+            dataGridViewCellStyle2.SelectionForeColor = Color.Black;
+            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
+            dataGridView1.DefaultCellStyle = dataGridViewCellStyle2;
             dataGridView1.EnableHeadersVisualStyles = false;
             dataGridView1.Location = new Point(234, 59);
             dataGridView1.Name = "dataGridView1";
@@ -212,7 +212,7 @@
             // 
             // textBox1
             // 
-            textBox1.Location = new Point(152, 161);
+            textBox1.Location = new Point(152, 164);
             textBox1.Name = "textBox1";
             textBox1.Size = new Size(100, 23);
             textBox1.TabIndex = 7;
@@ -298,7 +298,7 @@
             panel2.Controls.Add(label6);
             panel2.Controls.Add(label7);
             panel2.Controls.Add(label8);
-            panel2.Location = new Point(319, 225);
+            panel2.Location = new Point(784, 274);
             panel2.Name = "panel2";
             panel2.Size = new Size(402, 211);
             panel2.TabIndex = 3;
@@ -341,7 +341,7 @@
             // 
             // textBox2
             // 
-            textBox2.Location = new Point(152, 172);
+            textBox2.Location = new Point(152, 173);
             textBox2.Name = "textBox2";
             textBox2.Size = new Size(100, 23);
             textBox2.TabIndex = 7;
@@ -464,9 +464,9 @@
             button6.BackColor = Color.RosyBrown;
             button6.FlatStyle = FlatStyle.Popup;
             button6.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold);
-            button6.Location = new Point(1208, 7);
+            button6.Location = new Point(1213, 4);
             button6.Name = "button6";
-            button6.Size = new Size(77, 23);
+            button6.Size = new Size(77, 32);
             button6.TabIndex = 4;
             button6.Text = "Previous";
             button6.UseVisualStyleBackColor = false;
@@ -477,9 +477,9 @@
             button7.BackColor = Color.RosyBrown;
             button7.FlatStyle = FlatStyle.Popup;
             button7.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold);
-            button7.Location = new Point(1292, 7);
+            button7.Location = new Point(1293, 4);
             button7.Name = "button7";
-            button7.Size = new Size(68, 23);
+            button7.Size = new Size(68, 32);
             button7.TabIndex = 5;
             button7.Text = "Next";
             button7.UseVisualStyleBackColor = false;

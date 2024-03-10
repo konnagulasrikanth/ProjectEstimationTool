@@ -62,7 +62,7 @@ namespace ProjectEstimationTool
             panel5.Visible = false;
             panel6.Visible = false;
             label11.Visible = false;
-            this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            //this.FormBorderStyle = FormBorderStyle.Sizable;
 
 
             try
@@ -151,7 +151,7 @@ namespace ProjectEstimationTool
 
         }
 
-        private async void button1_Click_1(object sender, EventArgs e)  //create new project button
+        private void button1_Click_1(object sender, EventArgs e)  //create new project button
         {
             panel3.Visible = true;
             panel4.Visible = true;
@@ -709,6 +709,14 @@ namespace ProjectEstimationTool
             LoadData();
             panel6.Visible = false;
             label1.Visible = false;
+            MasterUserControl masterControl = new MasterUserControl();
+            masterControl.Dock = DockStyle.Fill;
+            masterControl.UpdateProjectLabel(projectname, projectid);
+            masterControl.LoadScopeSection(); // Call the method to load the "Scope and Effort" section
+            panel1.Visible = true;
+            panel1.Controls.Clear();
+            panel1.Controls.Add(masterControl);
+            label9.Text = "";
 
 
 
@@ -719,6 +727,15 @@ namespace ProjectEstimationTool
             LoadData();
             panel6.Visible = false;
             label1.Visible = false;
+            MasterUserControl masterControl = new MasterUserControl();
+            masterControl.Dock = DockStyle.Fill;
+            masterControl.UpdateProjectLabel(projectname, projectid);
+            masterControl.loadconfigdata(); //call the method to configurations
+            panel1.Visible = true;
+            panel1.Controls.Clear();
+            panel1.Controls.Add(masterControl);
+            label9.Text = "";
+
 
 
         }

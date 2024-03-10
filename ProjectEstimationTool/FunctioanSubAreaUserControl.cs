@@ -21,7 +21,6 @@ namespace ProjectEstimationTool
         private string functionalSubAreaName;
         private FunctionalSubArea selecteddata;
         ProjectEstimationToolMasterContext db = new ProjectEstimationToolMasterContext();
-        static string ConnectionString = @"Data Source=ICS-LT-64146D3\SQLEXPRESS;Initial Catalog=ProjectEstimationToolMaster;Integrated Security=True;TrustServerCertificate=True";
         public void RefreshData()
         {
             var res = from t in db.FunctionalSubArea
@@ -42,8 +41,7 @@ namespace ProjectEstimationTool
             panel1.Visible = false;
             panel2.Visible = false;
             RefreshData();
-            //dataGridView1.EnableHeadersVisualStyles = false;
-            //dataGridView1.ColumnHeadersDefaultCellStyle.BackColor = Color.Green;
+   
         }
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -112,16 +110,23 @@ namespace ProjectEstimationTool
             fsaid = Convert.ToInt32(clickedRow.Cells["FunctionalSubAreaId"].Value);
             fsa = Convert.ToString(clickedRow.Cells["functionalsubareanames"].Value);
         }
-        private bool FunctionalSubAreaNameExists(string name)
+        private bool FunctionalSubAreaNameExists(string name, int currentFunctionalSubAreaId)
         {
-            // Check if the functional sub-area name already exists in the database
-            return db.FunctionalSubArea.Any(fsa => fsa.ProjectId == Form1.projectid && fsa.FunctionalSubAreaName == name);
+            // Check if the functional sub-area name already exists in the database (case-insensitive)
+            var existingFunctionalSubArea = db.FunctionalSubArea
+                .FirstOrDefault(fsa =>
+                    fsa.ProjectId == Form1.projectid &&
+                    fsa.FunctionalSubAreaName.ToLower() == name.ToLower() &&
+                    fsa.FunctionalSubAreaId != currentFunctionalSubAreaId);
+
+            return existingFunctionalSubArea != null;
         }
+
 
         private void button2_Click(object sender, EventArgs e)
         {
             // Check if the functional sub-area name already exists
-            if (FunctionalSubAreaNameExists(textBox1.Text))
+            if (FunctionalSubAreaNameExists(textBox1.Text, fsaid))
             {
                 MessageBox.Show("Functional sub-area name already exists. Please choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -137,7 +142,7 @@ namespace ProjectEstimationTool
                        select t;
             if (rest.Any())
             {
-                selecteddata.FunctionalSubAreaName = textBox1.Text;
+                selecteddata.FunctionalSubAreaName = textBox1.Text.Trim();
                 db.SaveChanges();
                 RefreshData();
                 panel1.Visible = false;
@@ -159,15 +164,15 @@ namespace ProjectEstimationTool
         }
         private bool IsValidString(string input)
         {
-            // Check if the input is not empty and contains only letters or whitespace
-            return !string.IsNullOrWhiteSpace(input) && input.All(c => char.IsLetter(c) || char.IsWhiteSpace(c));
-
+            // Check if the input is not empty and contains only letters, hyphens, or whitespace
+            return !string.IsNullOrWhiteSpace(input) && input.All(c => char.IsLetter(c) || c == '-' || char.IsWhiteSpace(c));
         }
+
         private void button5_Click(object sender, EventArgs e)
         {
             button1.BackColor = Color.LightBlue; 
             // Check if the functional sub-area name already exists
-            if (FunctionalSubAreaNameExists(textBox2.Text))
+            if (FunctionalSubAreaNameExists(textBox2.Text,fsaid))
             {
                 MessageBox.Show("Functional sub-area name already exists. Please choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -182,17 +187,19 @@ namespace ProjectEstimationTool
             var res = new FunctionalSubArea
             {
                 ProjectId = Form1.projectid,
-                FunctionalSubAreaName = textBox2.Text,
+                FunctionalSubAreaName = textBox2.Text.Trim(),
             };
             db.FunctionalSubArea.Add(res);
             db.SaveChanges();
             RefreshData();
+            button1.BackColor= Color.RosyBrown;
             panel2.Visible = false;
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
             panel2.Visible = false;
+            button1.BackColor = Color.RosyBrown;
         }
 
         private void button6_Click(object sender, EventArgs e)

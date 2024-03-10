@@ -116,18 +116,26 @@ namespace ProjectEstimationTool
         }
         private bool IsValidString(string input)
         {
-            // Check if the input is not empty and contains only letters or whitespace
-            return !string.IsNullOrWhiteSpace(input) && input.All(c => char.IsLetter(c) || char.IsWhiteSpace(c));
+            // Check if the input is not empty and contains only letters, hyphens, or whitespace
+            return !string.IsNullOrWhiteSpace(input) && input.All(c => char.IsLetter(c) || c == '-' || char.IsWhiteSpace(c));
         }
-        private bool FunctionalAreaNameExists(string name)
+
+        private bool FunctionalAreaNameExists(string name, int currentFunctionalAreaId)
         {
-            // Check if the functional area name already exists in the database
-            return db.FunctionalArea.Any(fa => fa.ProjectId == Form1.projectid && fa.FunctionalAreaName == name);
+            // Check if the functional area name already exists in the database (case-insensitive)
+            var existingFunctionalArea = db.FunctionalArea
+                .FirstOrDefault(fa =>
+                    fa.ProjectId == Form1.projectid &&
+                    fa.FunctionalAreaName.ToLower() == name.ToLower() &&
+                    fa.FunctionalAreaId != currentFunctionalAreaId);
+
+            return existingFunctionalArea != null;
         }
+
         private void button2_Click(object sender, EventArgs e)
         {
             // Check if the functional area name already exists
-            if (FunctionalAreaNameExists(textBox1.Text))
+            if (FunctionalAreaNameExists(textBox1.Text,functionalAreaId))
             {
                 MessageBox.Show("Functional area name already exists. Please choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -148,7 +156,7 @@ namespace ProjectEstimationTool
             {
                 selecteddata.FunctionalAreaName = textBox1.Text.Trim();
                 db.SaveChanges();
-                MessageBox.Show("Functional Area updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Functional Area updated successfully.");
                 LoadFunctionalAreaData();
                 panel1.Visible = false;
             }
@@ -168,7 +176,7 @@ namespace ProjectEstimationTool
                 return;
             }
             // Check if the functional area name already exists
-            if (FunctionalAreaNameExists(textBox2.Text))
+            if (FunctionalAreaNameExists(textBox2.Text,functionalAreaId))
             {
                 MessageBox.Show("Functional area name already exists. Please choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -181,6 +189,7 @@ namespace ProjectEstimationTool
             };
             db.FunctionalArea.Add(resss);
             db.SaveChanges();
+            MessageBox.Show("Functional Area added successfully.");
             button1.BackColor = Color.RosyBrown;
             LoadFunctionalAreaData();
             panel2.Visible = false;

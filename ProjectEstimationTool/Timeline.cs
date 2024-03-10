@@ -239,7 +239,7 @@ namespace ProjectEstimationTool
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (dataGridView1.SelectedRows[0].Index > 4)
+            if (dataGridView1.SelectedRows[0].Index > 3)
             {
 
 
@@ -434,7 +434,7 @@ namespace ProjectEstimationTool
             if (timelineDataExists)
             {
                 var timelinesToUpdate = db.Timeline.Where(t => t.ProjectId == Form1.projectid).ToList();
-
+                var maxMmForProject = db.Timeline.Where(t=>t.ProjectId == Form1.projectid).Select(p => p.Mm + p.Lag).Max();
                 foreach (var timeline in timelinesToUpdate)
                 {
                     if (timeline.Phase.Contains("Requirement"))
@@ -450,15 +450,15 @@ namespace ProjectEstimationTool
                         timeline.EffHrs = (int)sumOfQafinalHrs;
                     }
                 }
-
+                // Update the demo dates if required
+                UpdateDemoDatesIfRequired(maxMmForProject);
                 db.SaveChanges();
+           
+                // Reload timeline data
+                loadTimelineData();
             }
         }
-        private void UpdateTimeline()
-        {
-
-
-        }
+   
 
 
 
@@ -565,6 +565,34 @@ namespace ProjectEstimationTool
         {
             button6.BackColor = Color.LightBlue;
             panel8.Visible = true;
+            // Retrieve demo dates from the database
+            var demoDates = db.Demodates.FirstOrDefault(d => d.ProjectId == Form1.projectid);
+
+            if (demoDates != null)
+            {
+                // Populate the textboxes with demo dates
+                textBox6.Text = demoDates.Demodate1.ToString();
+                textBox10.Text = demoDates.Demodate2.ToString();
+            }
+            else
+            {
+                // If no demo dates are found in the database, set default values
+                textBox6.Text = "0";
+                textBox10.Text = "0";
+            }
+        }
+        private void UpdateDemoDatesIfRequired(int newMaxMonth)
+        {
+            var demoDates = db.Demodates.FirstOrDefault(d => d.ProjectId == Form1.projectid);
+
+            if (demoDates != null && demoDates.Demodate1 + demoDates.Demodate2 != newMaxMonth)
+            {
+                demoDates.Demodate2 = newMaxMonth ;
+
+                // Save changes to the database
+                db.Demodates.Update(demoDates);
+                db.SaveChanges();
+            }
         }
 
         private void button7_Click(object sender, EventArgs e)
@@ -572,20 +600,22 @@ namespace ProjectEstimationTool
 
             var maxmm = db.Timeline.Where(p => p.ProjectId == Form1.projectid).Select(p => p.Mm + p.Lag).Max();
 
+            if (!int.TryParse(textBox6.Text, out int demodate1) || !int.TryParse(textBox10.Text, out int demodate2))
+            {
+                MessageBox.Show("Please enter valid demo dates in MM format.");
+                return;
+            }
+
             Demodates AddOrUpdateDemodates = new Demodates
             {
-                // Add validation for Demodate1
-                Demodate1 = int.TryParse(textBox6.Text, out int demodate1) && demodate1 >= 2 ? demodate1 : 0,
-
-                // Add validation for Demodate2
-                Demodate2 = int.TryParse(textBox10.Text, out int demodate2) && demodate2 >= 2 ? demodate2 : 0,
-
+                Demodate1 = demodate1 >= 2 ? demodate1 : 0,
+                Demodate2 = demodate2 >= 2 ? demodate2 : 0,
                 ProjectId = Form1.projectid,
             };
 
             if (AddOrUpdateDemodates.Demodate1 == 0 || AddOrUpdateDemodates.Demodate2 == 0)
             {
-                MessageBox.Show("please enter the demo dates in MM Format.");
+                MessageBox.Show("Please enter valid demo dates in MM format.");
             }
             else if (AddOrUpdateDemodates.Demodate1 > maxmm || AddOrUpdateDemodates.Demodate2 > maxmm)
             {
@@ -597,12 +627,10 @@ namespace ProjectEstimationTool
             }
             else
             {
-                // Check if a record with the specified ProjectId exists
                 var existingDemodates = db.Demodates.FirstOrDefault(p => p.ProjectId == Form1.projectid);
 
                 if (existingDemodates != null)
                 {
-                    // Update the existing record
                     existingDemodates.Demodate1 = AddOrUpdateDemodates.Demodate1;
                     existingDemodates.Demodate2 = AddOrUpdateDemodates.Demodate2;
                     db.Demodates.Update(existingDemodates);
@@ -610,16 +638,16 @@ namespace ProjectEstimationTool
                 }
                 else
                 {
-                    // Add a new record if it doesn't exist
                     db.Demodates.Add(AddOrUpdateDemodates);
                     MessageBox.Show("Demo dates added successfully!");
                 }
 
-                // Save changes to the database
                 db.SaveChanges();
                 loadTimelineData();
                 panel8.Visible = false;
             }
+
+
 
         }
 

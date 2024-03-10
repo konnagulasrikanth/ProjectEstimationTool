@@ -675,6 +675,7 @@
             dataGridView2.RowHeadersVisible = false;
             dataGridView2.Size = new Size(1286, 171);
             dataGridView2.TabIndex = 7;
+            dataGridView2.CellContentClick += dataGridView2_CellContentClick;
             // 
             // resourceAllocationIdDataGridViewTextBoxColumn
             // 

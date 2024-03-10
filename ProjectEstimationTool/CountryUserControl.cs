@@ -26,7 +26,11 @@ namespace ProjectEstimationTool
         public CountryUserControl()
         {
             InitializeComponent();
+            //// Call the method to get all country names
+            //List<string> allCountries = GetAllCountries();
 
+            //// Populate the ComboBox with country names
+            //comboBox1.DataSource = allCountries;
             dataGridView1.ContextMenuStrip = contextMenuStrip1;
             LoadCountryData();
         }
@@ -113,15 +117,33 @@ namespace ProjectEstimationTool
         }
         private bool IsValidString(string input)
         {
-            // Check if the input is not empty and contains only letters or whitespace
-            return !string.IsNullOrWhiteSpace(input) && input.All(c => char.IsLetter(c) || char.IsWhiteSpace(c));
+            // Check if the input is not empty and contains only letters, hyphens, or spaces
+            return !string.IsNullOrWhiteSpace(input) && input.All(c => char.IsLetter(c) || c == '-' || char.IsWhiteSpace(c));
+        }
+        //private List<string> GetAllCountries()
+        //{
+        //    // You can use a predefined list or an external API to get all country names
+        //    // For simplicity, here's a list of some countries
+        //    List<string> countries = new List<string>
+        //    {
+        //        "Afghanistan", "Albania", "Algeria", /* ... add all countries ... */
+        //        "Zambia", "Zimbabwe" ,"India","USA","Canada"
+        //    };
+
+        //    return countries;
+        //}
+        private bool CountryNameExists(string name, int currentCountryId)
+        {
+            // Check if the country name already exists in the database (case-insensitive)
+            var existingCountry = db.Country
+                .FirstOrDefault(c =>
+                    c.ProjectId == Form1.projectid &&
+                    c.CountryName.ToLower() == name.ToLower() &&
+                    c.CountryId != currentCountryId);
+
+            return existingCountry != null;
         }
 
-        private bool CountryNameExists(string name)
-        {
-            // Check if the country name already exists in the database
-            return db.Country.Any(c => c.ProjectId == Form1.projectid && c.CountryName == name);
-        }
 
         private void button2_Click(object sender, EventArgs e)  //addcountry button
         {
@@ -136,7 +158,7 @@ namespace ProjectEstimationTool
                 }
 
                 // Check if the country name already exists
-                if (CountryNameExists(textBox1.Text))
+                if (CountryNameExists(textBox1.Text,cid))
                 {
                     MessageBox.Show("Country name already exists. Please choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
@@ -145,7 +167,7 @@ namespace ProjectEstimationTool
                 var res = new Country
                 {
                     ProjectId = Form1.projectid,
-                    CountryName = textBox1.Text
+                    CountryName = textBox1.Text.Trim()
                 };
                 db.Country.Add(res);
                 db.SaveChanges();
@@ -176,7 +198,7 @@ namespace ProjectEstimationTool
                 }
 
                 // Check if the country name already exists
-                if (CountryNameExists(textBox2.Text))
+                if (CountryNameExists(textBox2.Text,cid))
                 {
                     MessageBox.Show("Country name already exists. Please choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
@@ -187,7 +209,7 @@ namespace ProjectEstimationTool
                         select t;
                 if (d.Any())
                 {
-                    countrydata.CountryName = textBox2.Text;
+                    countrydata.CountryName = textBox2.Text.Trim();
                     db.SaveChanges();
                     MessageBox.Show("Country updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadCountryData();

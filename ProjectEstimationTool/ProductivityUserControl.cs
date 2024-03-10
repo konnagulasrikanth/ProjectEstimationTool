@@ -103,33 +103,33 @@ namespace ProjectEstimationTool
                 {
                     label4.ForeColor = Color.Red;
 
-                    label4.Text = "Error: Please enter a non-negative value for hours.";
+                    label4.Text = "Please enter a non-negative value for hours.";
                     return;
                 }
 
                 switch (workinghours)
                 {
                     case "Day":
-                        if (enteredHours < 7 || enteredHours > 24)
+                        if (enteredHours < 1 || enteredHours > 24)
                         {
                             label4.ForeColor = Color.Red;
-                            label4.Text = "Error: Hours for a day should be between 7 and 24.";
+                            label4.Text = "Hours for a day should be between 1 to 24.";
                             return;
                         }
                         break;
                     case "Week":
-                        if (enteredHours < 35 || enteredHours > 140)
+                        if (enteredHours < 1 || enteredHours > 140)
                         {
                             label4.ForeColor = Color.Red;
-                            label4.Text = "Error: Hours for a week should be between 35 and 140.";
+                            label4.Text = "Hours for a week should be between 1 to 140.";
                             return;
                         }
                         break;
                     case "Month":
-                        if (enteredHours < 135 || enteredHours > 480)
+                        if (enteredHours < 1 || enteredHours > 480)
                         {
                             label4.ForeColor = Color.Red;
-                            label4.Text = "Error: Hours for a month should be between 135 and 480.";
+                            label4.Text = "Hours for a month should be between 1 to 480.";
                             return;
                         }
                         break;
@@ -138,10 +138,11 @@ namespace ProjectEstimationTool
                 }
 
 
-                label4.ForeColor = Color.Black; // Reset text color to default
+                label4.ForeColor = Color.Black; 
 
-                label4.Text = ""; // Clear any previous error messages
+                label4.Text = ""; 
                 panel1.Visible = false;
+
                 p.Hours = enteredHours;
                 db.SaveChanges();
                 // Update Timeline based on Productivity
@@ -182,15 +183,12 @@ namespace ProjectEstimationTool
             }
         }
 
-        private bool IsDuplicateHours(int hours)
-        {
-            // Check if the entered hours already exist in the database
-            return db.Productivity.Any(p => p.ProjectId == Form1.projectid && p.Hours == hours);
-        }
+      
 
         private void button2_Click_1(object sender, EventArgs e)
         {
             panel1.Visible = false;
+            label4.Text = "";
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -225,7 +223,7 @@ namespace ProjectEstimationTool
             {
                 label4.ForeColor = Color.Red;
 
-                label4.Text = "Error: Please enter a valid value for hours.";
+                label4.Text = "Please enter a valid value for hours.";
             }
             else
             {

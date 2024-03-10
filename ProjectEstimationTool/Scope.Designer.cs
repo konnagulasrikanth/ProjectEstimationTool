@@ -75,6 +75,8 @@ namespace ProjectEstimationTool
             projectDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             button1 = new Button();
             panel2 = new Panel();
+            label39 = new Label();
+            label40 = new Label();
             richTextBox1 = new RichTextBox();
             label26 = new Label();
             label25 = new Label();
@@ -99,6 +101,8 @@ namespace ProjectEstimationTool
             button2 = new Button();
             label1 = new Label();
             panel3 = new Panel();
+            label37 = new Label();
+            label38 = new Label();
             richTextBox2 = new RichTextBox();
             label22 = new Label();
             label21 = new Label();
@@ -178,7 +182,7 @@ namespace ProjectEstimationTool
             dataGridView1.BackgroundColor = SystemColors.ControlLightLight;
             dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle1.BackColor = Color.RosyBrown;
-            dataGridViewCellStyle1.Font = new Font("Arial", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle1.Font = new Font("Palatino Linotype", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
             dataGridViewCellStyle1.SelectionBackColor = Color.RosyBrown;
             dataGridViewCellStyle1.SelectionForeColor = SystemColors.WindowText;
@@ -189,7 +193,7 @@ namespace ProjectEstimationTool
             dataGridView1.DataSource = scopeAndEffortBindingSource;
             dataGridViewCellStyle18.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle18.BackColor = SystemColors.Window;
-            dataGridViewCellStyle18.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle18.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             dataGridViewCellStyle18.ForeColor = SystemColors.ControlText;
             dataGridViewCellStyle18.SelectionBackColor = Color.LightBlue;
             dataGridViewCellStyle18.SelectionForeColor = SystemColors.WindowText;
@@ -389,7 +393,7 @@ namespace ProjectEstimationTool
             // 
             descriptionDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             descriptionDataGridViewTextBoxColumn.DataPropertyName = "Description";
-            dataGridViewCellStyle17.Font = new Font("Arial", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle17.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             descriptionDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle17;
             descriptionDataGridViewTextBoxColumn.FillWeight = 116.009445F;
             descriptionDataGridViewTextBoxColumn.HeaderText = "Description";
@@ -420,6 +424,8 @@ namespace ProjectEstimationTool
             // panel2
             // 
             panel2.BackColor = Color.White;
+            panel2.Controls.Add(label39);
+            panel2.Controls.Add(label40);
             panel2.Controls.Add(richTextBox1);
             panel2.Controls.Add(label26);
             panel2.Controls.Add(label25);
@@ -443,19 +449,43 @@ namespace ProjectEstimationTool
             panel2.Controls.Add(comboBox1);
             panel2.Controls.Add(button2);
             panel2.Controls.Add(label1);
-            panel2.Location = new Point(126, 292);
+            panel2.Location = new Point(95, 345);
             panel2.Name = "panel2";
-            panel2.Size = new Size(622, 274);
+            panel2.Size = new Size(622, 288);
             panel2.TabIndex = 2;
             panel2.Paint += panel2_Paint;
             // 
+            // label39
+            // 
+            label39.AutoSize = true;
+            label39.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label39.Location = new Point(575, 269);
+            label39.Name = "label39";
+            label39.Size = new Size(33, 18);
+            label39.TabIndex = 27;
+            label39.Text = "/500";
+            // 
+            // label40
+            // 
+            label40.AutoSize = true;
+            label40.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label40.Location = new Point(559, 269);
+            label40.Name = "label40";
+            label40.Size = new Size(15, 18);
+            label40.TabIndex = 28;
+            label40.Text = "0";
+            label40.Click += label40_Click;
+            // 
             // richTextBox1
             // 
+            richTextBox1.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             richTextBox1.Location = new Point(491, 171);
+            richTextBox1.MaxLength = 500;
             richTextBox1.Name = "richTextBox1";
             richTextBox1.Size = new Size(118, 96);
             richTextBox1.TabIndex = 25;
             richTextBox1.Text = "";
+            richTextBox1.TextChanged += richTextBox1_TextChanged;
             // 
             // label26
             // 
@@ -676,6 +706,8 @@ namespace ProjectEstimationTool
             // panel3
             // 
             panel3.BackColor = Color.White;
+            panel3.Controls.Add(label37);
+            panel3.Controls.Add(label38);
             panel3.Controls.Add(richTextBox2);
             panel3.Controls.Add(label22);
             panel3.Controls.Add(label21);
@@ -699,19 +731,43 @@ namespace ProjectEstimationTool
             panel3.Controls.Add(comboBox6);
             panel3.Controls.Add(button3);
             panel3.Controls.Add(label18);
-            panel3.Location = new Point(125, 301);
+            panel3.Location = new Point(113, 310);
             panel3.Name = "panel3";
-            panel3.Size = new Size(610, 284);
+            panel3.Size = new Size(610, 301);
             panel3.TabIndex = 18;
             panel3.Paint += panel3_Paint;
             // 
+            // label37
+            // 
+            label37.AutoSize = true;
+            label37.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label37.Location = new Point(549, 279);
+            label37.Name = "label37";
+            label37.Size = new Size(33, 18);
+            label37.TabIndex = 25;
+            label37.Text = "/500";
+            // 
+            // label38
+            // 
+            label38.AutoSize = true;
+            label38.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label38.Location = new Point(533, 279);
+            label38.Name = "label38";
+            label38.Size = new Size(15, 18);
+            label38.TabIndex = 26;
+            label38.Text = "0";
+            label38.Click += label38_Click;
+            // 
             // richTextBox2
             // 
+            richTextBox2.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             richTextBox2.Location = new Point(479, 180);
+            richTextBox2.MaxLength = 500;
             richTextBox2.Name = "richTextBox2";
             richTextBox2.Size = new Size(121, 96);
             richTextBox2.TabIndex = 25;
             richTextBox2.Text = "";
+            richTextBox2.TextChanged += richTextBox2_TextChanged;
             // 
             // label22
             // 
@@ -764,8 +820,9 @@ namespace ProjectEstimationTool
             // button4
             // 
             button4.BackColor = Color.FromArgb(192, 0, 0);
-            button4.Font = new Font("Palatino Linotype", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button4.ForeColor = SystemColors.ButtonHighlight;
+            button4.FlatStyle = FlatStyle.Popup;
+            button4.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            button4.ForeColor = Color.Black;
             button4.Location = new Point(574, 3);
             button4.Name = "button4";
             button4.Size = new Size(33, 33);
@@ -941,6 +998,7 @@ namespace ProjectEstimationTool
             label18.Size = new Size(184, 26);
             label18.TabIndex = 0;
             label18.Text = "Edit Scope && Effort";
+            label18.Click += label18_Click;
             // 
             // panel1
             // 
@@ -966,13 +1024,13 @@ namespace ProjectEstimationTool
             tableLayoutPanel1.CellBorderStyle = TableLayoutPanelCellBorderStyle.Inset;
             tableLayoutPanel1.ColumnCount = 13;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 82F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 86F));
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 64F));
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 69F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 81F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 78F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 74F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 75F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 85F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 77F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 66F));
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 79F));
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 71F));
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 79F));
@@ -1035,9 +1093,9 @@ namespace ProjectEstimationTool
             label33.AutoSize = true;
             label33.Dock = DockStyle.Fill;
             label33.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold);
-            label33.Location = new Point(741, 2);
+            label33.Location = new Point(747, 2);
             label33.Name = "label33";
-            label33.Size = new Size(68, 28);
+            label33.Size = new Size(71, 28);
             label33.TabIndex = 26;
             label33.Text = "label33";
             label33.TextAlign = ContentAlignment.MiddleLeft;
@@ -1071,9 +1129,9 @@ namespace ProjectEstimationTool
             label28.AutoSize = true;
             label28.Dock = DockStyle.Fill;
             label28.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold);
-            label28.Location = new Point(661, 2);
+            label28.Location = new Point(665, 2);
             label28.Name = "label28";
-            label28.Size = new Size(72, 28);
+            label28.Size = new Size(74, 28);
             label28.TabIndex = 23;
             label28.Text = "label28";
             label28.TextAlign = ContentAlignment.MiddleLeft;
@@ -1085,7 +1143,7 @@ namespace ProjectEstimationTool
             label29.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold);
             label29.Location = new Point(5, 2);
             label29.Name = "label29";
-            label29.Size = new Size(344, 28);
+            label29.Size = new Size(340, 28);
             label29.TabIndex = 24;
             label29.Text = "Total";
             label29.TextAlign = ContentAlignment.MiddleCenter;
@@ -1096,9 +1154,9 @@ namespace ProjectEstimationTool
             label30.AutoSize = true;
             label30.Dock = DockStyle.Fill;
             label30.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold);
-            label30.Location = new Point(357, 2);
+            label30.Location = new Point(353, 2);
             label30.Name = "label30";
-            label30.Size = new Size(76, 28);
+            label30.Size = new Size(80, 28);
             label30.TabIndex = 25;
             label30.Text = "label30";
             label30.TextAlign = ContentAlignment.MiddleLeft;
@@ -1232,6 +1290,10 @@ namespace ProjectEstimationTool
         private Label label33;
         private RichTextBox richTextBox1;
         private RichTextBox richTextBox2;
+        private Label label37;
+        private Label label38;
+        private Label label39;
+        private Label label40;
         private DataGridViewTextBoxColumn scopeAndEffortIdDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn projectIdDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn FunctionalAreaName;

@@ -18,7 +18,6 @@ namespace ProjectEstimationTool
     {
         private ResourceCosting Res { get; set; }
         private int timelineid;
-
         private int Hourlyrate;
         private int Monthlyhours;
         private int Months;
@@ -28,6 +27,8 @@ namespace ProjectEstimationTool
         public ResourceCostingUserControl()
         {
             InitializeComponent();
+
+
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -41,13 +42,16 @@ namespace ProjectEstimationTool
                       select t;
             dataGridView1.DataSource = res.ToList();
 
+
+
         }
         public void RefreshAllocation()
         {
             var res1 = from t in db.ResourceAllocation
-                      where t.ProjectId == Form1.projectid
-                      select t;
+                       where t.ProjectId == Form1.projectid
+                       select t;
             dataGridView2.DataSource = res1.ToList();
+
 
         }
 
@@ -55,6 +59,7 @@ namespace ProjectEstimationTool
         {
             panel1.Visible = false;
             panel2.Visible = false;
+
 
             UpdateResourceCostTimeline();
 
@@ -94,7 +99,7 @@ namespace ProjectEstimationTool
             Months = (from mm in db.Timeline
                       where mm.Phase == phase && mm.ProjectId == Form1.projectid
                       select mm.Mm).FirstOrDefault();
-            Monthlyrate = Hourlyrate * Monthlyhours *rescount;
+            Monthlyrate = Hourlyrate * Monthlyhours * rescount;
             Cost = Monthlyrate * Months;
 
         }
@@ -163,7 +168,7 @@ namespace ProjectEstimationTool
 
                 var existingRecord = db.ResourceCosting
                     .FirstOrDefault(rc =>
-                   
+
                         rc.ProjectId == Form1.projectid &&
                         rc.Phase == selectedPhase &&
                         rc.Country == selectedCountry &&
@@ -204,7 +209,7 @@ namespace ProjectEstimationTool
                     MessageBox.Show($"Number of resources cannot be greater than ResRequired ({resRequired}).", "Alert!");
                     return;
                 }
-                var resourceid = db.Resource.Where(r => r.ProjectId == Form1.projectid && r.TypeName == selectedResourceType).Select(r=>r.ResourceId).FirstOrDefault();
+                var resourceid = db.Resource.Where(r => r.ProjectId == Form1.projectid && r.TypeName == selectedResourceType).Select(r => r.ResourceId).FirstOrDefault();
                 var timelineId = db.Timeline
                     .Where(t => t.ProjectId == Form1.projectid && t.Phase == selectedPhase)
                     .Select(t => t.TimelineId)
@@ -214,7 +219,7 @@ namespace ProjectEstimationTool
 
                 var adddata = new ResourceCosting
                 {
-                    
+
                     ProjectId = Form1.projectid,
                     TimelineId = timelineId,
                     ResourceId = resourceid,
@@ -275,7 +280,7 @@ namespace ProjectEstimationTool
 
         private void button3_Click(object sender, EventArgs e)
         {
-            button1.BackColor= Color.RosyBrown;
+            button1.BackColor = Color.RosyBrown;
             panel1.Visible = false;
         }
 
@@ -564,13 +569,13 @@ namespace ProjectEstimationTool
                         resource.Phase = timelinedata.Phase;
                         resource.RoleLevel = resrate.LevelName;
                         resource.ResType = resrate.TypeName;
-                        resource.Country=resrate.CountryName;
-                        
+                        resource.Country = resrate.CountryName;
 
-                        Rateformula(resrate.TypeName, resrate.TypeName, resrate.LevelName, timelinedata.Phase,resource.ResCount);
+
+                        Rateformula(resrate.TypeName, resrate.TypeName, resrate.LevelName, timelinedata.Phase, resource.ResCount);
 
                         resource.HourlyRate = resrate.HourlyRate;
-                        resource.MonthlyRate = resource.HourlyRate * Monthlyhours*resource.ResCount;
+                        resource.MonthlyRate = resource.HourlyRate * Monthlyhours * resource.ResCount;
                         resource.Cost = resource.DurationMm * resource.MonthlyRate;
                         db.SaveChanges();
 
@@ -585,6 +590,11 @@ namespace ProjectEstimationTool
 
 
         private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dataGridView2_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
         }

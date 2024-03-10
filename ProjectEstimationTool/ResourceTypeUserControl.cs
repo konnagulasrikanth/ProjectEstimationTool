@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using ProjectEstimationTool.Models;
+using ProjectEstimationTool.Properties;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,10 +19,10 @@ namespace ProjectEstimationTool
     {
       
         private ResourceTypes selecteddata;
+        private int rid;
    
 
         ProjectEstimationToolMasterContext db = new ProjectEstimationToolMasterContext();
-        static string ConnectionString = @"Data Source=ICS-LT-64146D3\SQLEXPRESS;Initial Catalog=ProjectEstimationToolMaster;Integrated Security=True;TrustServerCertificate=True";
         public ResourceTypeUserControl()
         {
             InitializeComponent();
@@ -90,11 +91,18 @@ namespace ProjectEstimationTool
         {
 
         }
-        private bool ResourceTypeExists(string name)
+        private bool ResourceTypeExists(string name, int currentResourceTypeId)
         {
-            // Check if the resource type name already exists in the database
-            return db.ResourceTypes.Any(r => r.ProjectId == Form1.projectid && r.TypeName == name);
+            // Check if the resource type name already exists in the database (case-insensitive)
+            var existingResourceType = db.ResourceTypes
+                .FirstOrDefault(rt =>
+                    rt.ProjectId == Form1.projectid &&
+                    rt.TypeName.ToLower() == name.ToLower() &&
+                    rt.ResourceTypeId != currentResourceTypeId);
+
+            return existingResourceType != null;
         }
+
 
         private void button3_Click(object sender, EventArgs e) //edit button of resource types
         {
@@ -110,9 +118,9 @@ namespace ProjectEstimationTool
                 MessageBox.Show("Resource type name should only contain letters and spaces.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-
+            
             // Validate that TypeName is not duplicated
-            if (ResourceTypeExists(textBox1.Text))
+            if (ResourceTypeExists(textBox1.Text,rid))
             {
                 MessageBox.Show("Resource type name already exists. Please choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -124,7 +132,7 @@ namespace ProjectEstimationTool
 
             if (rest.Any())
             {
-                string newTypeName = textBox1.Text;
+                string newTypeName = textBox1.Text.Trim();
 
                 // Update the ResourceTypes table
                 selecteddata.TypeName = newTypeName;
@@ -134,6 +142,7 @@ namespace ProjectEstimationTool
 
                 LoadResourceTypes();
                 panel1.Visible = false;
+                MessageBox.Show("Resource type updated successfully");
 
 
 
@@ -147,7 +156,7 @@ namespace ProjectEstimationTool
         private bool IsValidResourceTypeName(string typeName)
         {
             // Check if the input contains only letters and spaces
-            return !string.IsNullOrWhiteSpace(typeName) && typeName.All(c => char.IsLetter(c) || char.IsWhiteSpace(c));
+            return !string.IsNullOrWhiteSpace(typeName) && typeName.All(c => char.IsLetter(c) || c == '-' || char.IsWhiteSpace(c));
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -172,7 +181,7 @@ namespace ProjectEstimationTool
             }
 
             // Validate that TypeName is not duplicated
-            if (ResourceTypeExists(textBox2.Text))
+            if (ResourceTypeExists(textBox2.Text,rid))
             {
                 MessageBox.Show("Resource type name already exists. Please choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -186,12 +195,14 @@ namespace ProjectEstimationTool
             var a = new ResourceTypes
             {
                 ProjectId = Form1.projectid,
-                TypeName = textBox2.Text,
+                TypeName = textBox2.Text.Trim(),
             };
             db.ResourceTypes.Add(a);
             db.SaveChanges();
             LoadResourceTypes();
             panel2.Visible = false;
+            MessageBox.Show("Resource type added successfully");
+
 
         }
         private void button4_Click(object sender, EventArgs e)

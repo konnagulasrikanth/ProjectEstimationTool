@@ -130,19 +130,19 @@
             contextMenuStrip1.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             contextMenuStrip1.Items.AddRange(new ToolStripItem[] { editToolStripMenuItem, deleteToolStripMenuItem });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(181, 70);
+            contextMenuStrip1.Size = new Size(117, 48);
             // 
             // editToolStripMenuItem
             // 
             editToolStripMenuItem.Name = "editToolStripMenuItem";
-            editToolStripMenuItem.Size = new Size(180, 22);
+            editToolStripMenuItem.Size = new Size(116, 22);
             editToolStripMenuItem.Text = "Edit";
             editToolStripMenuItem.Click += editToolStripMenuItem_Click;
             // 
             // deleteToolStripMenuItem
             // 
             deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            deleteToolStripMenuItem.Size = new Size(180, 22);
+            deleteToolStripMenuItem.Size = new Size(116, 22);
             deleteToolStripMenuItem.Text = "Delete";
             deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
             // 
@@ -190,9 +190,11 @@
             // 
             // textBox1
             // 
+            textBox1.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             textBox1.Location = new Point(123, 66);
+            textBox1.MaxLength = 3;
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(158, 23);
+            textBox1.Size = new Size(158, 25);
             textBox1.TabIndex = 2;
             // 
             // label3
@@ -247,7 +249,7 @@
             panel2.Controls.Add(textBox2);
             panel2.Controls.Add(label4);
             panel2.Controls.Add(label5);
-            panel2.Location = new Point(512, 267);
+            panel2.Location = new Point(599, 211);
             panel2.Name = "panel2";
             panel2.Size = new Size(350, 170);
             panel2.TabIndex = 5;
@@ -280,9 +282,11 @@
             // 
             // textBox2
             // 
+            textBox2.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             textBox2.Location = new Point(142, 77);
+            textBox2.MaxLength = 3;
             textBox2.Name = "textBox2";
-            textBox2.Size = new Size(156, 23);
+            textBox2.Size = new Size(156, 25);
             textBox2.TabIndex = 2;
             // 
             // label4
@@ -310,9 +314,9 @@
             button6.BackColor = Color.RosyBrown;
             button6.FlatStyle = FlatStyle.Popup;
             button6.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold);
-            button6.Location = new Point(1206, 3);
+            button6.Location = new Point(1214, 3);
             button6.Name = "button6";
-            button6.Size = new Size(69, 23);
+            button6.Size = new Size(69, 34);
             button6.TabIndex = 6;
             button6.Text = "Previous";
             button6.UseVisualStyleBackColor = false;
@@ -324,9 +328,9 @@
             button7.BackColor = Color.RosyBrown;
             button7.FlatStyle = FlatStyle.Popup;
             button7.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold);
-            button7.Location = new Point(1281, 3);
+            button7.Location = new Point(1289, 3);
             button7.Name = "button7";
-            button7.Size = new Size(69, 23);
+            button7.Size = new Size(69, 34);
             button7.TabIndex = 7;
             button7.Text = "Next";
             button7.UseVisualStyleBackColor = false;

@@ -98,7 +98,7 @@
             dgv1.BackgroundColor = Color.White;
             dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle1.BackColor = Color.RosyBrown;
-            dataGridViewCellStyle1.Font = new Font("Arial", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle1.Font = new Font("Palatino Linotype", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
             dataGridViewCellStyle1.SelectionBackColor = Color.RosyBrown;
             dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
@@ -110,14 +110,14 @@
             dgv1.DataSource = effortTypeBindingSource;
             dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle4.BackColor = Color.White;
-            dataGridViewCellStyle4.Font = new Font("Arial", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle4.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             dataGridViewCellStyle4.ForeColor = SystemColors.WindowText;
             dataGridViewCellStyle4.SelectionBackColor = Color.LightBlue;
             dataGridViewCellStyle4.SelectionForeColor = SystemColors.WindowText;
             dataGridViewCellStyle4.WrapMode = DataGridViewTriState.False;
             dgv1.DefaultCellStyle = dataGridViewCellStyle4;
             dgv1.EnableHeadersVisualStyles = false;
-            dgv1.Location = new Point(142, 61);
+            dgv1.Location = new Point(118, 61);
             dgv1.Margin = new Padding(3, 4, 3, 4);
             dgv1.Name = "dgv1";
             dgv1.ReadOnly = true;
@@ -203,20 +203,22 @@
             // 
             contextMenuStrip1.Items.AddRange(new ToolStripItem[] { editToolStripMenuItem, deleteToolStripMenuItem });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(108, 48);
+            contextMenuStrip1.Size = new Size(116, 48);
             // 
             // editToolStripMenuItem
             // 
+            editToolStripMenuItem.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             editToolStripMenuItem.Name = "editToolStripMenuItem";
-            editToolStripMenuItem.Size = new Size(107, 22);
+            editToolStripMenuItem.Size = new Size(115, 22);
             editToolStripMenuItem.Text = "Edit";
             editToolStripMenuItem.Click += editToolStripMenuItem_Click;
             editToolStripMenuItem.MouseDown += editToolStripMenuItem_MouseDown;
             // 
             // deleteToolStripMenuItem
             // 
+            deleteToolStripMenuItem.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            deleteToolStripMenuItem.Size = new Size(107, 22);
+            deleteToolStripMenuItem.Size = new Size(115, 22);
             deleteToolStripMenuItem.Text = "Delete";
             deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
             // 
@@ -228,7 +230,7 @@
             // 
             button1.BackColor = Color.RosyBrown;
             button1.FlatStyle = FlatStyle.Popup;
-            button1.Location = new Point(142, 183);
+            button1.Location = new Point(120, 182);
             button1.Margin = new Padding(3, 4, 3, 4);
             button1.Name = "button1";
             button1.Size = new Size(86, 28);
@@ -425,7 +427,7 @@
             panel2.Controls.Add(label14);
             panel2.Controls.Add(label15);
             panel2.Controls.Add(textBox12);
-            panel2.Location = new Point(142, 288);
+            panel2.Location = new Point(131, 288);
             panel2.Margin = new Padding(3, 4, 3, 4);
             panel2.Name = "panel2";
             panel2.Size = new Size(696, 374);
@@ -594,7 +596,7 @@
             button6.BackColor = Color.RosyBrown;
             button6.FlatStyle = FlatStyle.Popup;
             button6.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button6.Location = new Point(1263, 4);
+            button6.Location = new Point(1284, 2);
             button6.Margin = new Padding(3, 4, 3, 4);
             button6.Name = "button6";
             button6.Size = new Size(77, 28);
