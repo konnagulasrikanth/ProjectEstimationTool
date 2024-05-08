@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Crypto.Tls;
 using Org.BouncyCastle.Ocsp;
 using ProjectEstimationTool.Models;
 using ProjectEstimationTool.Properties;
@@ -18,78 +19,108 @@ namespace ProjectEstimationTool
     public partial class ResourceRateUserControl : UserControl
     {
         private Resource selecteddata;
-        private int CountryName;
         ProjectEstimationToolMasterContext db = new ProjectEstimationToolMasterContext();
+        BindingList<Resource> resources;
+
         public ResourceRateUserControl()
         {
             InitializeComponent();
-            LoadDefaultResourceData();
-            dataGridView1.ContextMenuStrip = contextMenuStrip1;
+            resources = new BindingList<Resource>();
+            dataGridView1.AutoGenerateColumns = true;
+            dataGridView1.AllowUserToAddRows = true;
+            dataGridView1.CellEndEdit += dataGridView1_CellEndEdit;
+            dataGridView1.DataError += dataGridView1_DataError;
+
+
+
+
         }
 
+        private void LoadComboBoxData()
+        {
+
+            var countryNames = db.Country
+                    .Where(c => c.ProjectId == Form1.projectid)
+                    .Select(t => t.CountryName)
+                    .Distinct().ToList();
+            DataGridViewComboBoxColumn countryColumn = (DataGridViewComboBoxColumn)dataGridView1.Columns["CountryNames"];
+            countryColumn.DataSource = countryNames;
+
+            // Populate the resource type combo box with data
+            var resourceTypes = db.ResourceTypes
+                .Where(rt => rt.ProjectId == Form1.projectid)
+                .Select(t => t.TypeName)
+                .Distinct().ToList();
+            DataGridViewComboBoxColumn typeColumn = (DataGridViewComboBoxColumn)dataGridView1.Columns["TypeNames"];
+            typeColumn.DataSource = resourceTypes;
+
+            // Populate the resource level combo box with data
+            var resourceLevels = db.ResourceLevel
+                .Where(rl => rl.ProjectId == Form1.projectid)
+                .Select(t => t.LevelName)
+                .Distinct().ToList();
+            DataGridViewComboBoxColumn levelColumn = (DataGridViewComboBoxColumn)dataGridView1.Columns["LevelNames"];
+            levelColumn.DataSource = resourceLevels;
+            LoadDefaultResourceData();
+
+
+
+        }
         private void ResourceRateUserControl_Load(object sender, EventArgs e)
         {
-            panel1.Visible = false;
-            panel2.Visible = false;
+
             UpdateResource();
-            //UpdateResourceDataOnChanges();
+            LoadComboBoxData();
+            int hourlyRateColumnIndex = dataGridView1.Columns["HourlyRate"].Index;
 
+            // Hook into the CellFormatting event to format the HourlyRate column
+            dataGridView1.CellFormatting += (s, ev) =>
+            {
+                // Check if the current cell is in the HourlyRate column
+                if (ev.ColumnIndex == hourlyRateColumnIndex && ev.RowIndex >= 0)
+                {
+                    // Get the value from the cell
+                    if (decimal.TryParse(ev.Value?.ToString(), out decimal hourlyRate))
+                    {
+                        // Format the value with the dollar symbol
+                        ev.Value = string.Format("${0:N2}", hourlyRate);
+                        ev.FormattingApplied = true; // Set this to true to indicate the value has been formatted
+                    }
+                }
+            };
 
-            LoadDefaultResourceData();
         }
+
+
+
+
+
+
+
+
+
+
         private void LoadDefaultResourceData()
         {
-            var res = from t in db.Resource
-                      where t.ProjectId == Form1.projectid
-                      select t;
-            dataGridView1.DataSource = res.ToList();
+            // Clear the resources list
+            resources.Clear();
+
+            // Fetch resources from the database
+            var res = db.Resource.Where(t => t.ProjectId == Form1.projectid).ToList();
+
+            // Add the fetched resources to the resources list
+            foreach (Resource resource in res)
+            {
+                resources.Add(resource);
+            }
+
+            // Set the DataGridView data source
+            dataGridView1.DataSource = resources;
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            button1.BackColor = Color.LightBlue;
-            // Clear entered values
-            comboBox1.SelectedIndex = -1;
-            comboBox2.SelectedIndex = -1;
-            comboBox3.SelectedIndex = -1;
-            textBox1.Text = "";
-            panel1.Visible = true;
-            panel2.Visible = false;
-            comboBox1.Refresh();
-            // Distinct values for Country
-            var ef = db.Country
-                .Where(c => c.ProjectId == Form1.projectid) // Filter by ProjectId
-                .Select(t => t.CountryName)
-                .Distinct();
-            comboBox1.Items.Clear();
-            comboBox1.Items.AddRange(ef.ToArray());
 
-            // Distinct values for ResourceTypes
-            comboBox2.Refresh();
-            var fa = db.ResourceTypes
-                .Where(rt => rt.ProjectId == Form1.projectid) // Filter by ProjectId
-                .Select(t => t.TypeName)
-                .Distinct();
-            comboBox2.Items.Clear();
-            comboBox2.Items.AddRange(fa.ToArray());
 
-            // Distinct values for ResourceLevel
-            comboBox3.Refresh();
-            var fsa = db.ResourceLevel
-                .Where(rl => rl.ProjectId == Form1.projectid) // Filter by ProjectId
-                .Select(t => t.LevelName)
-                .Distinct();
-            comboBox3.Items.Clear();
-            comboBox3.Items.AddRange(fsa.ToArray());
-       
-            LoadDefaultResourceData();
-        }
 
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-        
         private bool IsDuplicateResource(string country, string resourceType, string resourceLevel)
         {
             //int currentResourceId = db.Resource.Where(c=>c.CountryName==country&&c.TypeName ==resourceType && c.LevelName==resourceLevel).Select(p=>p.ResourceId).FirstOrDefault();
@@ -114,118 +145,6 @@ namespace ProjectEstimationTool
         }
 
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            
-          
-            try
-            {
-                // Validate that a country is selected
-                if (comboBox1.SelectedIndex == -1)
-                {
-                    MessageBox.Show("Please select a country.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                // Validate that a resource type is selected
-                if (comboBox2.SelectedIndex == -1)
-                {
-                    MessageBox.Show("Please select a resource type.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                // Validate that a resource level is selected
-                if (comboBox3.SelectedIndex == -1)
-                {
-                    MessageBox.Show("Please select a resource level.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                // Check for duplicate entry
-                if (IsDuplicateResource(comboBox1.SelectedItem.ToString(), comboBox2.SelectedItem.ToString(), comboBox3.SelectedItem.ToString()))
-                {
-                    MessageBox.Show("Duplicate resource entry found. Please choose different values.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                if (string.IsNullOrWhiteSpace(textBox1.Text))
-                {
-                    MessageBox.Show("Please enter an hourly rate.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                // Validate that the hourly rate is a valid integer
-                if (!int.TryParse(textBox1.Text, out int hourlyRate))
-                {
-                    MessageBox.Show("Please enter a valid hourly rate.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                var countryid = db.Country.Where(p => p.ProjectId == Form1.projectid && p.CountryName == comboBox1.SelectedItem.ToString()).Select(p => p.CountryId).FirstOrDefault();
-                var reslevelid = db.ResourceLevel.Where(p => p.ProjectId == Form1.projectid && p.LevelName == comboBox3.SelectedItem.ToString()).Select(p => p.LevelId).FirstOrDefault();
-                var restypeid = db.ResourceTypes.Where(p => p.ProjectId == Form1.projectid && p.TypeName == comboBox2.SelectedItem.ToString()).Select(p => p.ResourceTypeId).FirstOrDefault();
-
-                var res = new Resource
-                {
-                    ProjectId = Form1.projectid,
-                    CountryId = countryid,
-                    ResourceTypeId = restypeid,
-                    LevelId = reslevelid,
-                    CountryName = comboBox1.SelectedItem.ToString(),
-                    TypeName = comboBox2.SelectedItem.ToString(),
-                    LevelName = comboBox3.SelectedItem.ToString(),
-                    HourlyRate = int.Parse(textBox1.Text.Trim()),
-                };
-                db.Resource.Add(res);
-                db.SaveChanges();
-                LoadDefaultResourceData();
-                button1.BackColor = Color.RosyBrown;
-
-                panel1.Visible = false;
-            }
-            catch
-            (Exception ex)
-            {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void editToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            panel1.Visible = false;
-            panel2.Visible = true;
-
-            var ef = db.Country
-                     .Where(c => c.ProjectId == Form1.projectid) // Filter by ProjectId
-                     .Select(t => t.CountryName)
-                     .Distinct();
-            comboBox6.Items.Clear();
-            comboBox6.Items.AddRange(ef.ToArray());
-
-            var fa = db.ResourceTypes
-                         .Where(rt => rt.ProjectId == Form1.projectid) // Filter by ProjectId
-                         .Select(t => t.TypeName)
-                         .Distinct();
-            comboBox5.Items.Clear();
-            comboBox5.Items.AddRange(fa.ToArray());
-            var fsa = db.ResourceLevel
-                           .Where(rl => rl.ProjectId == Form1.projectid) // Filter by ProjectId
-                           .Select(t => t.LevelName)
-                           .Distinct();
-            comboBox4.Items.Clear();
-            comboBox4.Items.AddRange(fsa.ToArray());
-
-            if (dataGridView1.SelectedRows.Count > 0)
-            {
-
-                selecteddata = dataGridView1.SelectedRows[0].DataBoundItem as Resource;
-                if (selecteddata != null)
-                {
-                    comboBox6.Text = selecteddata.CountryName;
-                    comboBox5.Text = selecteddata.TypeName;
-                    comboBox4.Text = selecteddata.LevelName;
-                    textBox2.Text = selecteddata.HourlyRate.ToString();
-                }
-            }
-        }
 
         private void dataGridView1_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         {
@@ -251,13 +170,13 @@ namespace ProjectEstimationTool
                     var restype = db.ResourceTypes
                    .Where(t => t.ResourceTypeId == ResourceRecord.ResourceTypeId && t.ProjectId == Form1.projectid)
                        .FirstOrDefault();
-              
+
                     if (ResourceRecord != null)
                     {
                         ResourceRecord.TypeName = restype.TypeName;
                         ResourceRecord.LevelName = reslevel.LevelName;
                         ResourceRecord.CountryName = countrydata.CountryName;
-                      
+
                         db.SaveChanges();
 
                     }
@@ -266,131 +185,11 @@ namespace ProjectEstimationTool
             }
             catch (Exception ex)
             {
-
                 MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
 
         }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                // Validate that a country is selected
-                if (comboBox6.SelectedIndex == -1)
-                {
-                    MessageBox.Show("Please select a country.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                // Validate that a resource type is selected
-                if (comboBox5.SelectedIndex == -1)
-                {
-                    MessageBox.Show("Please select a resource type.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                // Validate that a resource level is selected
-                if (comboBox4.SelectedIndex == -1)
-                {
-                    MessageBox.Show("Please select a resource level.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                // Check for duplicate entry
-                if (IsDuplicateResourceEdit(comboBox6.SelectedItem.ToString(), comboBox5.SelectedItem.ToString(), comboBox4.SelectedItem.ToString(),selecteddata.ResourceId))
-                {
-                    MessageBox.Show("Duplicate resource entry found. Please choose different values.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                if (string.IsNullOrWhiteSpace(textBox2.Text))
-                {
-                    MessageBox.Show("Please enter an hourly rate.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-
-                // Validate that the hourly rate is a valid integer
-                if (!int.TryParse(textBox2.Text, out int hourlyRate))
-                {
-                    MessageBox.Show("Please enter a valid hourly rate.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                var countryid = db.Country.Where(p => p.ProjectId == Form1.projectid && p.CountryName == comboBox6.SelectedItem.ToString()).Select(p => p.CountryId).FirstOrDefault();
-                var reslevelid = db.ResourceLevel.Where(p => p.ProjectId == Form1.projectid && p.LevelName == comboBox4.SelectedItem.ToString()).Select(p => p.LevelId).FirstOrDefault();
-                var restypeid = db.ResourceTypes.Where(p => p.ProjectId == Form1.projectid && p.TypeName == comboBox5.SelectedItem.ToString()).Select(p => p.ResourceTypeId).FirstOrDefault();
-                selecteddata.CountryName = comboBox6.SelectedItem.ToString();
-                selecteddata.ResourceTypeId = restypeid;
-                selecteddata.LevelId = reslevelid;
-                selecteddata.CountryId = countryid;
-                selecteddata.TypeName = comboBox5.SelectedItem.ToString();
-                selecteddata.LevelName = comboBox4.SelectedItem.ToString();
-                selecteddata.HourlyRate = int.Parse(textBox2.Text.Trim());
-                db.SaveChanges();
-                panel2.Visible = false;
-                LoadDefaultResourceData();
-            }
-            catch
-            (Exception ex)
-            {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (dataGridView1.SelectedRows.Count > 0)
-            {
-                DialogResult result = MessageBox.Show("Are you sure you want to delete this row?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                if (result == DialogResult.Yes)
-                {
-                    DataGridViewRow selectedRow = dataGridView1.SelectedRows[0];
-
-                    if (selectedRow.DataBoundItem is Resource selectedResource)
-                    {
-                        int resourceId = selectedResource.ResourceId;
-
-                        var resourceToDelete = db.Resource.FirstOrDefault(r => r.ResourceId == resourceId);
-
-                        if (resourceToDelete != null)
-                        {
-                            db.Resource.Remove(resourceToDelete);
-                            db.SaveChanges();
-                            LoadDefaultResourceData();
-                        }
-                    }
-                }
-            }
-        }
-
-
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void button5_Click(object sender, EventArgs e)
-        {
-            panel2.Visible = false;
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-
-            button1.BackColor = Color.RosyBrown;
-            // Clear entered values
-            comboBox1.SelectedIndex = -1;
-            comboBox2.SelectedIndex = -1;
-            comboBox3.SelectedIndex = -1;
-            textBox1.Text = "";
-            panel1.Visible = false;
-        
-
-        }
-
         private void button6_Click(object sender, EventArgs e)
         {
             ResourceLevelUserControl rl = new ResourceLevelUserControl();
@@ -404,12 +203,404 @@ namespace ProjectEstimationTool
             this.Hide();
             this.Parent.Controls.Add(sr);
         }
-  
-      
 
-        private void comboBox4_SelectedIndexChanged(object sender, EventArgs e)
+
+        //private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        //{
+        //    try
+        //    {
+        //        int rowIndex = e.RowIndex;
+        //        int columnIndex = e.ColumnIndex;
+
+        //        // Check if the edited cell is within the data grid view bounds
+        //        if (rowIndex >= 0 && columnIndex >= 0)
+        //        {
+        //            DataGridViewRow editedRow = dataGridView1.Rows[rowIndex];
+
+        //            // Check if the edited cell is in the HourlyRate column
+        //            if (dataGridView1.Columns[columnIndex].Name == "HourlyRate")
+        //            {
+        //                // Get values from the edited row
+        //                string resourceType = editedRow.Cells["TypeNames"].Value?.ToString();
+        //                string resourceLevel = editedRow.Cells["LevelNames"].Value?.ToString();
+        //                string country = editedRow.Cells["CountryNames"].Value?.ToString();
+
+        //                // Validate that the hourly rate is a valid integer
+        //                if (!int.TryParse(editedRow.Cells["HourlyRate"].Value?.ToString(), out int hourlyRate))
+        //                {
+        //                    MessageBox.Show("Please enter a valid hourly rate.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //                    return;
+        //                }
+
+        //                // Assuming you have an entity class named Resource
+        //                var resource = db.Resource.FirstOrDefault(p =>
+        //                    p.TypeName == resourceType &&
+        //                    p.LevelName == resourceLevel &&
+        //                    p.CountryName == country);
+
+        //                if (resource != null)
+        //                {
+        //                    // Update resource properties based on the edited cell
+        //                    switch (dataGridView1.Columns[columnIndex].Name)
+        //                    {
+        //                        case "TypeNames":
+        //                            resource.TypeName = editedRow.Cells[columnIndex].Value?.ToString();
+        //                            break;
+        //                        case "LevelNames":
+        //                            resource.LevelName = editedRow.Cells[columnIndex].Value?.ToString();
+        //                            break;
+        //                        case "CountryNames":
+        //                            resource.CountryName = editedRow.Cells[columnIndex].Value?.ToString();
+        //                            break;
+        //                        case "HourlyRate":
+        //                            resource.HourlyRate = Convert.ToInt32(editedRow.Cells[columnIndex].Value);
+        //                            break;
+        //                        default:
+        //                            break;
+        //                    }
+
+        //                    // Save changes within a try-catch block
+        //                    try
+        //                    {
+        //                        db.SaveChanges();
+        //                        MessageBox.Show("Updated successfully");
+        //                    }
+        //                    catch (Exception ex)
+        //                    {
+        //                        // Display the specific error message from the inner exception
+        //                        string errorMessage = ex.InnerException?.Message ?? ex.Message;
+        //                        MessageBox.Show($"Error saving to the database: {errorMessage}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    //var resourceid = db.Resource.Where(r => r.ProjectId == Form1.projectid && r.TypeName == selectedResourceType).Select(r => r.ResourceId).FirstOrDefault();
+        //                    var counid = db.Country.Where(t => t.ProjectId == Form1.projectid && t.CountryName == country).Select(t => t.CountryId).FirstOrDefault();
+        //                    var typid = db.ResourceTypes.Where(t => t.ProjectId == Form1.projectid && t.TypeName == resourceType).Select(t => t.ResourceTypeId).FirstOrDefault();
+        //                    var levid = db.ResourceLevel.Where(l => l.ProjectId == Form1.projectid && l.LevelName == resourceLevel).Select(l => l.LevelId).FirstOrDefault();
+        //                    // Resource not found, add a new combination
+        //                    var newResource = new Resource
+        //                    {
+        //                        ProjectId = Form1.projectid,
+        //                        CountryId = counid,
+        //                        ResourceTypeId = typid,
+        //                        LevelId = levid,
+        //                        TypeName = resourceType,
+        //                        LevelName = resourceLevel,
+        //                        CountryName = country,
+        //                        HourlyRate = Convert.ToInt32(editedRow.Cells["HourlyRate"].Value)
+        //                    };
+
+        //                    // Save new resource within a try-catch block
+        //                    try
+        //                    {
+        //                        db.Resource.Add(newResource);
+        //                        db.SaveChanges();
+        //                        MessageBox.Show("New resource added successfully");
+        //                    }
+        //                    catch (Exception ex)
+        //                    {
+        //                        // Display the specific error message from the inner exception
+        //                        string errorMessage = ex.InnerException?.Message ?? ex.Message;
+        //                        MessageBox.Show($"Error saving to the database: {errorMessage}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //    }
+
+        //}
+
+        //private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        //{
+        //    try
+        //    {
+        //        int rowIndex = e.RowIndex;
+        //        int columnIndex = e.ColumnIndex;
+
+        //        // Check if the edited cell is within the data grid view bounds
+        //        if (rowIndex >= 0 && columnIndex >= 0)
+        //        {
+        //            DataGridViewRow editedRow = dataGridView1.Rows[rowIndex];
+
+        //            // Check if the edited cell is in the HourlyRate column
+        //            if (dataGridView1.Columns[columnIndex].Name == "HourlyRate")
+        //            {
+        //                // Get values from the edited row
+        //                string resourceType = editedRow.Cells["TypeNames"].Value?.ToString();
+        //                string resourceLevel = editedRow.Cells["LevelNames"].Value?.ToString();
+        //                string country = editedRow.Cells["CountryNames"].Value?.ToString();
+
+        //                // Validate that the hourly rate is a valid integer
+        //                string hourlyRateText = editedRow.Cells["HourlyRate"].Value?.ToString();
+        //                if (!string.IsNullOrWhiteSpace(hourlyRateText) && int.TryParse(hourlyRateText, out int hourlyRate))
+        //                {
+        //                    // Assuming you have an entity class named Resource
+        //                    var resource = db.Resource.FirstOrDefault(p =>
+        //                        p.TypeName == resourceType &&
+        //                        p.LevelName == resourceLevel &&
+        //                        p.CountryName == country);
+
+        //                    if (resource != null)
+        //                    {
+        //                        // Update resource properties based on the edited cell
+        //                        switch (dataGridView1.Columns[columnIndex].Name)
+        //                        {
+        //                            case "TypeNames":
+        //                                resource.TypeName = editedRow.Cells[columnIndex].Value?.ToString();
+        //                                break;
+        //                            case "LevelNames":
+        //                                resource.LevelName = editedRow.Cells[columnIndex].Value?.ToString();
+        //                                break;
+        //                            case "CountryNames":
+        //                                resource.CountryName = editedRow.Cells[columnIndex].Value?.ToString();
+        //                                break;
+        //                            case "HourlyRate":
+        //                                resource.HourlyRate = hourlyRate;
+        //                                break;
+        //                            default:
+        //                                break;
+        //                        }
+
+        //                        // Save changes within a try-catch block
+        //                        try
+        //                        {
+        //                            db.SaveChanges();
+        //                            MessageBox.Show("Updated successfully");
+        //                        }
+        //                        catch (Exception ex)
+        //                        {
+        //                            // Display the specific error message from the inner exception
+        //                            string errorMessage = ex.InnerException?.Message ?? ex.Message;
+        //                            MessageBox.Show($"Error saving to the database: {errorMessage}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        //var resourceid = db.Resource.Where(r => r.ProjectId == Form1.projectid && r.TypeName == selectedResourceType).Select(r => r.ResourceId).FirstOrDefault();
+        //                        var counid = db.Country.Where(t => t.ProjectId == Form1.projectid && t.CountryName == country).Select(t => t.CountryId).FirstOrDefault();
+        //                        var typid = db.ResourceTypes.Where(t => t.ProjectId == Form1.projectid && t.TypeName == resourceType).Select(t => t.ResourceTypeId).FirstOrDefault();
+        //                        var levid = db.ResourceLevel.Where(l => l.ProjectId == Form1.projectid && l.LevelName == resourceLevel).Select(l => l.LevelId).FirstOrDefault();
+        //                        // Resource not found, add a new combination
+        //                        var newResource = new Resource
+        //                        {
+        //                            ProjectId = Form1.projectid,
+        //                            CountryId = counid,
+        //                            ResourceTypeId = typid,
+        //                            LevelId = levid,
+        //                            TypeName = resourceType,
+        //                            LevelName = resourceLevel,
+        //                            CountryName = country,
+        //                            HourlyRate = hourlyRate
+        //                        };
+
+        //                        // Save new resource within a try-catch block
+        //                        try
+        //                        {
+        //                            db.Resource.Add(newResource);
+        //                            db.SaveChanges();
+        //                            MessageBox.Show("New resource added successfully");
+        //                        }
+        //                        catch (Exception ex)
+        //                        {
+        //                            // Display the specific error message from the inner exception
+        //                            string errorMessage = ex.InnerException?.Message ?? ex.Message;
+        //                            MessageBox.Show($"Error saving to the database: {errorMessage}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //                        }
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    MessageBox.Show("Please enter a valid hourly rate.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //    }
+        //}
+
+        private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        
+        {
+            try
+            {
+                int rowIndex = e.RowIndex;
+                int columnIndex = e.ColumnIndex;
+
+                // Check if the edited cell is within the data grid view bounds
+                if (rowIndex >= 0 && columnIndex >= 0)
+                {
+                    DataGridViewRow editedRow = dataGridView1.Rows[rowIndex];
+
+                    // Check if the edited cell is in the HourlyRate column
+                    if (dataGridView1.Columns[columnIndex].Name == "HourlyRate")
+                    {
+                        // Get values from the edited row
+                        string resourceType = editedRow.Cells["TypeNames"].Value?.ToString();
+                        string resourceLevel = editedRow.Cells["LevelNames"].Value?.ToString();
+                        string country = editedRow.Cells["CountryNames"].Value?.ToString();
+
+                        // Validate that the hourly rate is a valid integer
+                        string hourlyRateText = editedRow.Cells["HourlyRate"].Value?.ToString();
+                        if (!string.IsNullOrWhiteSpace(hourlyRateText) && IsInteger(hourlyRateText))
+                        {
+                            int hourlyRate = int.Parse(hourlyRateText);
+                            // Assuming you have an entity class named Resource
+                            var resource = db.Resource.FirstOrDefault(p =>
+                                p.TypeName == resourceType &&
+                                p.LevelName == resourceLevel &&
+                                p.CountryName == country);
+
+                            if (resource != null)
+                            {
+                                // Update resource properties based on the edited cell
+                                switch (dataGridView1.Columns[columnIndex].Name)
+                                {
+                                    case "TypeNames":
+                                        resource.TypeName = editedRow.Cells[columnIndex].Value?.ToString();
+                                        break;
+                                    case "LevelNames":
+                                        resource.LevelName = editedRow.Cells[columnIndex].Value?.ToString();
+                                        break;
+                                    case "CountryNames":
+                                        resource.CountryName = editedRow.Cells[columnIndex].Value?.ToString();
+                                        break;
+                                    case "HourlyRate":
+                                        resource.HourlyRate = hourlyRate;
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                                // Save changes within a try-catch block
+                                try
+                                {
+                                    db.SaveChanges();
+                                    MessageBox.Show("Updated successfully");
+                                }
+                                catch (Exception ex)
+                                {
+                                    // Display the specific error message from the inner exception
+                                    string errorMessage = ex.InnerException?.Message ?? ex.Message;
+                                    MessageBox.Show($"Error saving to the database: {errorMessage}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
+                            }
+                            else
+                            {
+                                //var resourceid = db.Resource.Where(r => r.ProjectId == Form1.projectid && r.TypeName == selectedResourceType).Select(r => r.ResourceId).FirstOrDefault();
+                                var counid = db.Country.Where(t => t.ProjectId == Form1.projectid && t.CountryName == country).Select(t => t.CountryId).FirstOrDefault();
+                                var typid = db.ResourceTypes.Where(t => t.ProjectId == Form1.projectid && t.TypeName == resourceType).Select(t => t.ResourceTypeId).FirstOrDefault();
+                                var levid = db.ResourceLevel.Where(l => l.ProjectId == Form1.projectid && l.LevelName == resourceLevel).Select(l => l.LevelId).FirstOrDefault();
+                                // Resource not found, add a new combination
+                                var newResource = new Resource
+                                {
+                                    ProjectId = Form1.projectid,
+                                    CountryId = counid,
+                                    ResourceTypeId = typid,
+                                    LevelId = levid,
+                                    TypeName = resourceType,
+                                    LevelName = resourceLevel,
+                                    CountryName = country,
+                                    HourlyRate = hourlyRate
+                                };
+
+                                // Save new resource within a try-catch block
+                                try
+                                {
+                                    db.Resource.Add(newResource);
+                                    db.SaveChanges();
+                                    MessageBox.Show("New resource added successfully");
+                                }
+                                catch (Exception ex)
+                                {
+                                    // Display the specific error message from the inner exception
+                                    string errorMessage = ex.InnerException?.Message ?? ex.Message;
+                                    MessageBox.Show($"Error saving to the database: {errorMessage}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Please enter a valid integer for hourly rate without spaces or special characters.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Function to check if a string represents a valid integer
+        private bool IsInteger(string input)
+        {
+            foreach (char c in input)
+            {
+                if (!char.IsDigit(c))
+                    return false;
+            }
+            return true;
+        }
+
+
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
         }
+
+        private void dataGridView1_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Check if the Delete key is pressed
+            if (e.KeyCode == Keys.Delete)
+            {
+                // Ensure that at least one row is selected
+                if (dataGridView1.SelectedRows.Count > 0)
+                {
+                    DialogResult result = MessageBox.Show("Are you sure you want to delete this row?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        // Get the selected resource
+                        DataGridViewRow selectedRow = dataGridView1.SelectedRows[0];
+                        if (selectedRow.DataBoundItem is Resource selectedResource)
+                        {
+                            int resourceId = selectedResource.ResourceId;
+
+                            // Find the resource in the database
+                            var resourceToDelete = db.Resource.FirstOrDefault(r => r.ResourceId == resourceId);
+
+                            // If the resource is found, delete it
+                            if (resourceToDelete != null)
+                            {
+                                db.Resource.Remove(resourceToDelete);
+                                db.SaveChanges();
+                                LoadDefaultResourceData();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+         private void dataGridView1_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            if (e.Exception is FormatException)
+            {
+                e.Cancel = true;
+            }
+            else
+            {
+                Console.WriteLine($"Error occurred in DataGridView: {e.Exception.Message}");
+            }
+        }
     }
 }
+            

@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SummaryUserControl));
             label3 = new Label();
             label4 = new Label();
             label5 = new Label();
@@ -61,8 +60,6 @@
             label24 = new Label();
             label25 = new Label();
             label26 = new Label();
-            printDocument1 = new System.Drawing.Printing.PrintDocument();
-            printPreviewDialog1 = new PrintPreviewDialog();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
@@ -71,7 +68,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.BackColor = Color.LightBlue;
+            label3.BackColor = Color.DarkSlateGray;
             label3.Dock = DockStyle.Fill;
             label3.Font = new Font("Palatino Linotype", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label3.Location = new Point(4, 1);
@@ -85,7 +82,7 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.BackColor = Color.LightBlue;
+            label4.BackColor = Color.DarkSlateGray;
             label4.Dock = DockStyle.Fill;
             label4.Font = new Font("Palatino Linotype", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label4.Location = new Point(344, 1);
@@ -101,7 +98,7 @@
             label5.AutoSize = true;
             label5.BackColor = Color.LightBlue;
             label5.Dock = DockStyle.Fill;
-            label5.Font = new Font("Palatino Linotype", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label5.Font = new Font("Palatino Linotype", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label5.Location = new Point(4, 54);
             label5.Name = "label5";
             label5.Size = new Size(333, 52);
@@ -114,7 +111,7 @@
             label6.AutoSize = true;
             label6.BackColor = Color.LightBlue;
             label6.Dock = DockStyle.Fill;
-            label6.Font = new Font("Palatino Linotype", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label6.Font = new Font("Palatino Linotype", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label6.Location = new Point(344, 54);
             label6.Name = "label6";
             label6.Size = new Size(333, 52);
@@ -173,6 +170,7 @@
             label10.TabIndex = 10;
             label10.Text = "label10";
             label10.TextAlign = ContentAlignment.MiddleCenter;
+            label10.Click += label10_Click;
             // 
             // label11
             // 
@@ -203,7 +201,7 @@
             // label13
             // 
             label13.AutoSize = true;
-            label13.BackColor = Color.LemonChiffon;
+            label13.BackColor = Color.Crimson;
             label13.Dock = DockStyle.Fill;
             label13.Font = new Font("Palatino Linotype", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label13.Location = new Point(4, 157);
@@ -216,7 +214,7 @@
             // label14
             // 
             label14.AutoSize = true;
-            label14.BackColor = Color.LemonChiffon;
+            label14.BackColor = Color.Crimson;
             label14.Dock = DockStyle.Fill;
             label14.Font = new Font("Palatino Linotype", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label14.Location = new Point(344, 157);
@@ -282,7 +280,7 @@
             // textBox1
             // 
             textBox1.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            textBox1.Location = new Point(1002, 452);
+            textBox1.Location = new Point(1037, 452);
             textBox1.Name = "textBox1";
             textBox1.Size = new Size(36, 25);
             textBox1.TabIndex = 19;
@@ -291,7 +289,7 @@
             // textBox2
             // 
             textBox2.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            textBox2.Location = new Point(1002, 505);
+            textBox2.Location = new Point(1037, 505);
             textBox2.Name = "textBox2";
             textBox2.Size = new Size(36, 25);
             textBox2.TabIndex = 20;
@@ -300,7 +298,7 @@
             // label19
             // 
             label19.AutoSize = true;
-            label19.BackColor = Color.LemonChiffon;
+            label19.BackColor = Color.DarkGreen;
             label19.Dock = DockStyle.Fill;
             label19.Font = new Font("Palatino Linotype", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label19.Location = new Point(4, 314);
@@ -313,7 +311,7 @@
             // label20
             // 
             label20.AutoSize = true;
-            label20.BackColor = Color.LemonChiffon;
+            label20.BackColor = Color.DarkGreen;
             label20.Dock = DockStyle.Fill;
             label20.Font = new Font("Palatino Linotype", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label20.Location = new Point(344, 314);
@@ -327,7 +325,7 @@
             // 
             label21.AutoSize = true;
             label21.Font = new Font("Palatino Linotype", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label21.Location = new Point(317, 626);
+            label21.Location = new Point(326, 616);
             label21.Name = "label21";
             label21.Size = new Size(76, 26);
             label21.TabIndex = 23;
@@ -338,11 +336,11 @@
             button1.BackColor = Color.RosyBrown;
             button1.FlatStyle = FlatStyle.Popup;
             button1.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button1.Location = new Point(1105, 587);
+            button1.Location = new Point(1039, 576);
             button1.Name = "button1";
-            button1.Size = new Size(86, 25);
+            button1.Size = new Size(148, 37);
             button1.TabIndex = 24;
-            button1.Text = "PDF";
+            button1.Text = "Print Document";
             button1.UseVisualStyleBackColor = false;
             button1.Click += button1_Click;
             // 
@@ -351,7 +349,7 @@
             button2.BackColor = Color.RosyBrown;
             button2.FlatStyle = FlatStyle.Popup;
             button2.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button2.Location = new Point(1274, 4);
+            button2.Location = new Point(1220, 4);
             button2.Name = "button2";
             button2.Size = new Size(86, 32);
             button2.TabIndex = 26;
@@ -362,7 +360,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.BackColor = Color.RosyBrown;
+            label2.BackColor = Color.LightBlue;
             label2.Dock = DockStyle.Fill;
             label2.Font = new Font("Palatino Linotype", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label2.Location = new Point(4, 59);
@@ -376,10 +374,10 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.BackColor = Color.Black;
+            label1.BackColor = Color.Plum;
             label1.Dock = DockStyle.Fill;
             label1.Font = new Font("Palatino Linotype", 21.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.ForeColor = Color.FromArgb(128, 255, 128);
+            label1.ForeColor = Color.Black;
             label1.Location = new Point(4, 1);
             label1.Name = "label1";
             label1.Size = new Size(673, 57);
@@ -396,7 +394,7 @@
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel1.Controls.Add(label2, 0, 1);
             tableLayoutPanel1.Controls.Add(label1, 0, 0);
-            tableLayoutPanel1.Location = new Point(317, 3);
+            tableLayoutPanel1.Location = new Point(352, 3);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
             tableLayoutPanel1.RowCount = 2;
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
@@ -415,7 +413,7 @@
             tableLayoutPanel2.Controls.Add(label4, 1, 0);
             tableLayoutPanel2.Controls.Add(label5, 0, 1);
             tableLayoutPanel2.Controls.Add(label6, 1, 1);
-            tableLayoutPanel2.Location = new Point(317, 119);
+            tableLayoutPanel2.Location = new Point(352, 119);
             tableLayoutPanel2.Name = "tableLayoutPanel2";
             tableLayoutPanel2.RowCount = 2;
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
@@ -444,7 +442,7 @@
             tableLayoutPanel3.Controls.Add(label17, 1, 4);
             tableLayoutPanel3.Controls.Add(label16, 0, 5);
             tableLayoutPanel3.Controls.Add(label18, 1, 5);
-            tableLayoutPanel3.Location = new Point(317, 226);
+            tableLayoutPanel3.Location = new Point(352, 226);
             tableLayoutPanel3.Name = "tableLayoutPanel3";
             tableLayoutPanel3.RowCount = 7;
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
@@ -462,7 +460,7 @@
             // 
             label23.AutoSize = true;
             label23.Font = new Font("Palatino Linotype", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label23.Location = new Point(1039, 452);
+            label23.Location = new Point(1074, 452);
             label23.Name = "label23";
             label23.Size = new Size(23, 21);
             label23.TabIndex = 30;
@@ -472,7 +470,7 @@
             // 
             label24.AutoSize = true;
             label24.Font = new Font("Palatino Linotype", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label24.Location = new Point(1041, 506);
+            label24.Location = new Point(1076, 506);
             label24.Name = "label24";
             label24.Size = new Size(23, 21);
             label24.TabIndex = 31;
@@ -483,7 +481,7 @@
             label25.AutoSize = true;
             label25.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             label25.ForeColor = Color.Red;
-            label25.Location = new Point(1002, 477);
+            label25.Location = new Point(1037, 477);
             label25.Name = "label25";
             label25.Size = new Size(51, 18);
             label25.TabIndex = 32;
@@ -494,26 +492,11 @@
             label26.AutoSize = true;
             label26.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             label26.ForeColor = Color.Red;
-            label26.Location = new Point(1002, 530);
+            label26.Location = new Point(1037, 530);
             label26.Name = "label26";
             label26.Size = new Size(51, 18);
             label26.TabIndex = 33;
             label26.Text = "label26";
-            // 
-            // printDocument1
-            // 
-            printDocument1.PrintPage += printDocument1_PrintPage;
-            // 
-            // printPreviewDialog1
-            // 
-            printPreviewDialog1.AutoScrollMargin = new Size(0, 0);
-            printPreviewDialog1.AutoScrollMinSize = new Size(0, 0);
-            printPreviewDialog1.ClientSize = new Size(400, 300);
-            printPreviewDialog1.Document = printDocument1;
-            printPreviewDialog1.Enabled = true;
-            printPreviewDialog1.Icon = (Icon)resources.GetObject("printPreviewDialog1.Icon");
-            printPreviewDialog1.Name = "printPreviewDialog1";
-            printPreviewDialog1.Visible = false;
             // 
             // SummaryUserControl
             // 
@@ -579,7 +562,5 @@
         private Label label24;
         private Label label25;
         private Label label26;
-        private System.Drawing.Printing.PrintDocument printDocument1;
-        private PrintPreviewDialog printPreviewDialog1;
     }
 }

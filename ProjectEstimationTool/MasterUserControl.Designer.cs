@@ -48,7 +48,6 @@
             effortToolStripMenuItem = new ToolStripMenuItem();
             productivityToolStripMenuItem = new ToolStripMenuItem();
             functionalAreaToolStripMenuItem = new ToolStripMenuItem();
-            functionalSubAreaToolStripMenuItem = new ToolStripMenuItem();
             countryToolStripMenuItem = new ToolStripMenuItem();
             resourceTypeToolStripMenuItem = new ToolStripMenuItem();
             resourceLevelToolStripMenuItem = new ToolStripMenuItem();
@@ -57,6 +56,7 @@
             scopeEffortToolStripMenuItem = new ToolStripMenuItem();
             timelineToolStripMenuItem = new ToolStripMenuItem();
             resourceCostingToolStripMenuItem = new ToolStripMenuItem();
+            testToolStripMenuItem = new ToolStripMenuItem();
             summaryToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuItem1 = new ToolStripMenuItem();
             toolStripMenuItem2 = new ToolStripMenuItem();
@@ -236,7 +236,7 @@
             menuStrip1.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(1115, 40);
+            menuStrip1.Size = new Size(1257, 40);
             menuStrip1.TabIndex = 3;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -249,7 +249,7 @@
             // 
             // configurationsToolStripMenuItem
             // 
-            configurationsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { effortToolStripMenuItem, productivityToolStripMenuItem, functionalAreaToolStripMenuItem, functionalSubAreaToolStripMenuItem, countryToolStripMenuItem, resourceTypeToolStripMenuItem, resourceLevelToolStripMenuItem, resourceRateToolStripMenuItem, softwareRateToolStripMenuItem });
+            configurationsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { effortToolStripMenuItem, productivityToolStripMenuItem, functionalAreaToolStripMenuItem, countryToolStripMenuItem, resourceTypeToolStripMenuItem, resourceLevelToolStripMenuItem, resourceRateToolStripMenuItem, softwareRateToolStripMenuItem });
             configurationsToolStripMenuItem.Font = new Font("Palatino Linotype", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
             configurationsToolStripMenuItem.Name = "configurationsToolStripMenuItem";
             configurationsToolStripMenuItem.Size = new Size(189, 36);
@@ -259,63 +259,56 @@
             // effortToolStripMenuItem
             // 
             effortToolStripMenuItem.Name = "effortToolStripMenuItem";
-            effortToolStripMenuItem.Size = new Size(314, 36);
+            effortToolStripMenuItem.Size = new Size(462, 36);
             effortToolStripMenuItem.Text = "Effort Type";
             effortToolStripMenuItem.Click += effortToolStripMenuItem_Click_2;
             // 
             // productivityToolStripMenuItem
             // 
             productivityToolStripMenuItem.Name = "productivityToolStripMenuItem";
-            productivityToolStripMenuItem.Size = new Size(314, 36);
+            productivityToolStripMenuItem.Size = new Size(462, 36);
             productivityToolStripMenuItem.Text = "Productivity";
             productivityToolStripMenuItem.Click += productivityToolStripMenuItem_Click_2;
             // 
             // functionalAreaToolStripMenuItem
             // 
             functionalAreaToolStripMenuItem.Name = "functionalAreaToolStripMenuItem";
-            functionalAreaToolStripMenuItem.Size = new Size(314, 36);
-            functionalAreaToolStripMenuItem.Text = "Functional Area";
+            functionalAreaToolStripMenuItem.Size = new Size(462, 36);
+            functionalAreaToolStripMenuItem.Text = "Functional && Functional Sub-Area";
             functionalAreaToolStripMenuItem.Click += functionalAreaToolStripMenuItem_Click_2;
-            // 
-            // functionalSubAreaToolStripMenuItem
-            // 
-            functionalSubAreaToolStripMenuItem.Name = "functionalSubAreaToolStripMenuItem";
-            functionalSubAreaToolStripMenuItem.Size = new Size(314, 36);
-            functionalSubAreaToolStripMenuItem.Text = "Functional Sub-Area";
-            functionalSubAreaToolStripMenuItem.Click += functionalSubAreaToolStripMenuItem_Click_2;
             // 
             // countryToolStripMenuItem
             // 
             countryToolStripMenuItem.Name = "countryToolStripMenuItem";
-            countryToolStripMenuItem.Size = new Size(314, 36);
+            countryToolStripMenuItem.Size = new Size(462, 36);
             countryToolStripMenuItem.Text = "Country";
             countryToolStripMenuItem.Click += countryToolStripMenuItem_Click_2;
             // 
             // resourceTypeToolStripMenuItem
             // 
             resourceTypeToolStripMenuItem.Name = "resourceTypeToolStripMenuItem";
-            resourceTypeToolStripMenuItem.Size = new Size(314, 36);
+            resourceTypeToolStripMenuItem.Size = new Size(462, 36);
             resourceTypeToolStripMenuItem.Text = "Resource Type";
             resourceTypeToolStripMenuItem.Click += resourceTypeToolStripMenuItem_Click_2;
             // 
             // resourceLevelToolStripMenuItem
             // 
             resourceLevelToolStripMenuItem.Name = "resourceLevelToolStripMenuItem";
-            resourceLevelToolStripMenuItem.Size = new Size(314, 36);
+            resourceLevelToolStripMenuItem.Size = new Size(462, 36);
             resourceLevelToolStripMenuItem.Text = "Resource Level";
             resourceLevelToolStripMenuItem.Click += resourceLevelToolStripMenuItem_Click_2;
             // 
             // resourceRateToolStripMenuItem
             // 
             resourceRateToolStripMenuItem.Name = "resourceRateToolStripMenuItem";
-            resourceRateToolStripMenuItem.Size = new Size(314, 36);
+            resourceRateToolStripMenuItem.Size = new Size(462, 36);
             resourceRateToolStripMenuItem.Text = "Resource Rate";
             resourceRateToolStripMenuItem.Click += resourceRateToolStripMenuItem_Click_2;
             // 
             // softwareRateToolStripMenuItem
             // 
             softwareRateToolStripMenuItem.Name = "softwareRateToolStripMenuItem";
-            softwareRateToolStripMenuItem.Size = new Size(314, 36);
+            softwareRateToolStripMenuItem.Size = new Size(462, 36);
             softwareRateToolStripMenuItem.Text = "Software Rate";
             softwareRateToolStripMenuItem.Click += softwareRateToolStripMenuItem_Click_2;
             // 
@@ -335,12 +328,20 @@
             // 
             // resourceCostingToolStripMenuItem
             // 
+            resourceCostingToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { testToolStripMenuItem });
             resourceCostingToolStripMenuItem.Font = new Font("Palatino Linotype", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
             resourceCostingToolStripMenuItem.Name = "resourceCostingToolStripMenuItem";
             resourceCostingToolStripMenuItem.RightToLeft = RightToLeft.No;
             resourceCostingToolStripMenuItem.Size = new Size(216, 36);
             resourceCostingToolStripMenuItem.Text = "Resource Costing";
             resourceCostingToolStripMenuItem.Click += resourceCostingToolStripMenuItem_Click_1;
+            // 
+            // testToolStripMenuItem
+            // 
+            testToolStripMenuItem.Name = "testToolStripMenuItem";
+            testToolStripMenuItem.Size = new Size(275, 36);
+            testToolStripMenuItem.Text = "Software Costing";
+            testToolStripMenuItem.Click += testToolStripMenuItem_Click_1;
             // 
             // summaryToolStripMenuItem
             // 
@@ -352,8 +353,8 @@
             // toolStripMenuItem1
             // 
             toolStripMenuItem1.Name = "toolStripMenuItem1";
-            toolStripMenuItem1.Size = new Size(161, 36);
-            toolStripMenuItem1.Text = "Landing Page";
+            toolStripMenuItem1.Size = new Size(183, 36);
+            toolStripMenuItem1.Text = "Landing Screen";
             toolStripMenuItem1.Click += toolStripMenuItem1_Click;
             // 
             // toolStripMenuItem2
@@ -411,7 +412,6 @@
         private ToolStripMenuItem effortToolStripMenuItem;
         private ToolStripMenuItem productivityToolStripMenuItem;
         private ToolStripMenuItem functionalAreaToolStripMenuItem;
-        private ToolStripMenuItem functionalSubAreaToolStripMenuItem;
         private ToolStripMenuItem countryToolStripMenuItem;
         private ToolStripMenuItem resourceTypeToolStripMenuItem;
         private ToolStripMenuItem resourceLevelToolStripMenuItem;
@@ -435,5 +435,6 @@
         private Label label4;
         private Label label3;
         private Label label2;
+        private ToolStripMenuItem testToolStripMenuItem;
     }
 }

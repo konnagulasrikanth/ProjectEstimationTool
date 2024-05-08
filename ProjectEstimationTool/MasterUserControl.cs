@@ -13,6 +13,10 @@ namespace ProjectEstimationTool
 {
     public partial class MasterUserControl : UserControl
     {
+        public ToolStripMenuItem GetSummaryToolStripMenuItem()
+        {
+            return summaryToolStripMenuItem;
+        }
         private int Projectid;
         private string Projectname;
         public MasterUserControl()
@@ -25,14 +29,7 @@ namespace ProjectEstimationTool
             Projectname = projectname;
         }
 
-        private void effortToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            EffortTypeUserControl UpdateControl = new EffortTypeUserControl();
-            panel1.Controls.Clear();
-            panel1.Controls.Add(UpdateControl);
-            UpdateControl.Dock = DockStyle.Fill;
-            UpdateControl.UpdateProjectLabel(Projectname, Projectid);
-        }
+
 
         private void MasterUserControl_Load(object sender, EventArgs e)
         {
@@ -121,52 +118,12 @@ namespace ProjectEstimationTool
 
 
 
-
-
-
-
-
-
-
-
-
-        private void menuStrip1_ItemClicked_1(object sender, ToolStripItemClickedEventArgs e)
-        {
-
-        }
-
-        private void panel4_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void scopeEffortToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void panel4_Paint_1(object sender, PaintEventArgs e)
         {
 
         }
 
-        private void toolStripMenuItem2_Click(object sender, EventArgs e)
-        {
 
-        }
-
-
-
-        private void resourceCostingToolStripMenuItem1_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-
-        private void resourceCostingToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void label1_Click(object sender, EventArgs e)
         {
@@ -180,16 +137,20 @@ namespace ProjectEstimationTool
 
         private void scopeEffortToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
+            ScopeTestUserControl sc = new ScopeTestUserControl();
             panel4.Controls.Clear();
-            panel4.Controls.Add(new Scope());
+            panel4.Controls.Add(sc);
             colorbutton(scopeEffortToolStripMenuItem);
+            //sc.LoadComboBoxData();
+            //sc.LoadScopeData();
+
 
         }
         public void LoadScopeSection()
         {
-            panel4.Controls.Clear();
-            panel4.Controls.Add(new Scope());
-            colorbutton(scopeEffortToolStripMenuItem);
+            //panel4.Controls.Clear();
+            //panel4.Controls.Add(new Scope());
+            //colorbutton(scopeEffortToolStripMenuItem);
         }
         public void LoadhomeSection()
         {
@@ -209,8 +170,10 @@ namespace ProjectEstimationTool
 
         private void timelineToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
+            Timeline tm = new Timeline();
             panel4.Controls.Clear();
-            panel4.Controls.Add(new Timeline());
+            panel4.Controls.Add(tm);
+            tm.LoadData();
             colorbutton(timelineToolStripMenuItem);
 
         }
@@ -219,6 +182,7 @@ namespace ProjectEstimationTool
         {
             panel4.Controls.Clear();
             panel4.Controls.Add(new EffortTypeUserControl());
+            colorbutton(configurationsToolStripMenuItem);
         }
         public void loadconfigdata()
         {
@@ -232,88 +196,77 @@ namespace ProjectEstimationTool
         {
             panel4.Controls.Clear();
             panel4.Controls.Add(new ProductivityUserControl());
+            colorbutton(configurationsToolStripMenuItem);
+
         }
 
         private void functionalAreaToolStripMenuItem_Click_2(object sender, EventArgs e)
         {
             panel4.Controls.Clear();
             panel4.Controls.Add(new FunctionalUserControl());
+            colorbutton(configurationsToolStripMenuItem);
+
         }
 
-        private void functionalSubAreaToolStripMenuItem_Click_2(object sender, EventArgs e)
-        {
-            panel4.Controls.Clear();
-            panel4.Controls.Add(new FunctioanSubAreaUserControl());
-        }
+
 
         private void countryToolStripMenuItem_Click_2(object sender, EventArgs e)
         {
             panel4.Controls.Clear();
             panel4.Controls.Add(new CountryUserControl());
+            colorbutton(configurationsToolStripMenuItem);
+
         }
 
         private void resourceTypeToolStripMenuItem_Click_2(object sender, EventArgs e)
         {
             panel4.Controls.Clear();
             panel4.Controls.Add(new ResourceTypeUserControl());
+            colorbutton(configurationsToolStripMenuItem);
+
         }
 
         private void resourceLevelToolStripMenuItem_Click_2(object sender, EventArgs e)
         {
             panel4.Controls.Clear();
             panel4.Controls.Add(new ResourceLevelUserControl());
+            colorbutton(configurationsToolStripMenuItem);
+
         }
 
         private void resourceRateToolStripMenuItem_Click_2(object sender, EventArgs e)
         {
             panel4.Controls.Clear();
             panel4.Controls.Add(new ResourceRateUserControl());
+            colorbutton(configurationsToolStripMenuItem);
+
         }
 
         private void softwareRateToolStripMenuItem_Click_2(object sender, EventArgs e)
         {
             panel4.Controls.Clear();
             panel4.Controls.Add(new SoftwarerateUserControl());
+            colorbutton(configurationsToolStripMenuItem);
+
         }
 
         private void resourceCostingToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
             panel4.Controls.Clear();
+            ResourceCostingTest rm = new ResourceCostingTest();
+            rm.LoadComboBoxData();
+            panel4.Controls.Add(rm);
 
-            // Load ResourceCostingUserControl and add it to panel4
-            ResourceCostingUserControl resourceCostingUserControl = new ResourceCostingUserControl();
-            panel4.Controls.Add(resourceCostingUserControl);
 
-            // Load ResourceAllocationUserControl in the background (hidden)
-            ResourceAllocationUserControl resourceAllocationUserControl = new ResourceAllocationUserControl();
-            resourceAllocationUserControl.RefreshData(); // Refresh data if needed
 
-            // Add ResourceAllocationUserControl to panel4 (not setting Visible to true)
-            panel4.Controls.Add(resourceAllocationUserControl);
 
-            // Enable buttons in parent control (if applicable)
-            ResourceAllocationUserControl parentControl = FindParent<ResourceAllocationUserControl>(this);
-            if (parentControl != null)
-            {
-                parentControl.RefreshData();
-            }
+
+
 
             colorbutton(resourceCostingToolStripMenuItem);
 
         }
-        private T FindParent<T>(Control control) where T : Control
-        { //for accessing the parent control
-            Control parent = control.Parent;
-            while (parent != null)
-            {
-                if (parent is T typedParent)
-                {
-                    return typedParent;
-                }
-                parent = parent.Parent;
-            }
-            return null;
-        }
+
 
         private void resourceCostingToolStripMenuItem1_Click(object sender, EventArgs e)
         {
@@ -343,13 +296,9 @@ namespace ProjectEstimationTool
             resourceCostingToolStripMenuItem.BackColor = Color.RosyBrown;
             summaryToolStripMenuItem.BackColor = Color.RosyBrown;
             stripMenuItem.BackColor = Color.LightBlue;
+
         }
 
-        private void resourceAllocationToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            panel4.Controls.Clear();
-            panel4.Controls.Add(new ResourceAllocationUserControl());
-        }
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
@@ -362,6 +311,38 @@ namespace ProjectEstimationTool
             this.FindForm()?.Hide();
             fc.Show();
             colorbutton(toolStripMenuItem1);
+        }
+
+
+
+        private void softwareCostingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            panel4.Controls.Clear();
+            SoftwareListControl rm = new SoftwareListControl();
+            panel4.Controls.Add(rm);
+            rm.load();
+        }
+
+        private void testToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            panel4.Controls.Clear();
+            SoftwareListControl rm = new SoftwareListControl();
+            panel4.Controls.Add(rm);
+        }
+
+        private void testToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+
+            panel4.Controls.Clear();
+            SoftwareCostingTest rm = new SoftwareCostingTest();
+            panel4.Controls.Add(rm);
+        }
+
+        private void resourceCostingTestToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            panel4.Controls.Clear();
+          ResourceCostingTest rm = new ResourceCostingTest();
+            panel4.Controls.Add(rm);
         }
     }
 }

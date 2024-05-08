@@ -17,10 +17,14 @@ namespace ProjectEstimationTool
         ProjectEstimationToolMasterContext db = new ProjectEstimationToolMasterContext();
         private Productivity p;
         private string workinghours;
+        BindingList<Productivity> product;
         public ProductivityUserControl()
         {
             InitializeComponent();
-            dataGridView1.ContextMenuStrip = contextMenuStrip1;
+            product = new BindingList<Productivity>();
+            dataGridView1.AutoGenerateColumns = false;
+            dataGridView1.AllowUserToAddRows = false;
+            LoadProductivityData();
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
@@ -29,137 +33,92 @@ namespace ProjectEstimationTool
         }
         private void LoadProductivityData()
         {
-       
-            label4.Visible = false; 
-            
 
-            var res = from t in db.Productivity
-                      where t.ProjectId == Form1.projectid
-                      select t;
-            dataGridView1.DataSource = res.ToList();
+            try
+            {
+                var prod = db.Productivity.Where(t => t.ProjectId == Form1.projectid).ToList();
+                product.Clear();
+                foreach (var type in prod)
+                {
+                    product.Add(type);
+                }
+                dataGridView1.DataSource = product;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error Occured to load the data");
+            }
+
+
 
         }
 
         private void ProductivityUserControl_Load(object sender, EventArgs e)
         {
-            LoadProductivityData();
-            panel1.Visible = false;
 
         }
 
-        private void editToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            panel1.Visible = true;
-          
-            if (dataGridView1.SelectedRows.Count > 0)
-            {
-
-                p = dataGridView1.SelectedRows[0].DataBoundItem as Productivity;
-                if (p != null)
-                {
-                    textBox1.Text = p.Hours.ToString();
-                    workinghours = p.ProductivityName;
-                }
-            }
-        }
-
-        private void dataGridView1_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
-        {
-
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-
-
-        }
-
-        private void panel1_Paint_1(object sender, PaintEventArgs e)
-        {
-
-        }
         private bool IsValidHours(string input)
         {
             // Check if the input is a valid integer
             return int.TryParse(input, out _);
         }
-        private void button1_Click(object sender, EventArgs e)
-        {
-           
 
+        private void productivityrelation(string type, int duration)
+        {
             try
             {
-                // Validate that Hours is a valid integer
-                if (!IsValidHours(textBox1.Text))
+                var weekhours = db.Productivity.Where(p => p.ProjectId == Form1.projectid).ToList();
+
+                foreach (var item in weekhours)
                 {
-                    label4.ForeColor = Color.Red;
-                    label4.Text = "Error: Please enter a valid value for hours.";
-                    return;
+                    switch (type)
+                    {
+                        case "Day":
+                            if (item.ProductivityName == "Month")
+                            {
+                                item.Hours = duration * 20;
+                            }
+                            else if (item.ProductivityName == "Week")
+                            {
+                                item.Hours = duration * 5;
+                            }
+                            break;
+
+                        case "Week":
+                            if (item.ProductivityName == "Day")
+                            {
+                                item.Hours = duration / 5;
+                            }
+                            else if (item.ProductivityName == "Month")
+                            {
+                                item.Hours = duration * 4;
+                            }
+                            break;
+
+                        default: // Assuming the default case is "Month"
+                            if (item.ProductivityName == "Day")
+                            {
+                                item.Hours = duration / 20;
+                            }
+                            else if (item.ProductivityName == "Week")
+                            {
+                                item.Hours = duration / 4;
+                            }
+                            break;
+                    }
                 }
 
-                // Validate that the entered hours are not negative
-                int enteredHours = int.Parse(textBox1.Text);
-                if (enteredHours < 0)
-                {
-                    label4.ForeColor = Color.Red;
-
-                    label4.Text = "Please enter a non-negative value for hours.";
-                    return;
-                }
-
-                switch (workinghours)
-                {
-                    case "Day":
-                        if (enteredHours < 1 || enteredHours > 24)
-                        {
-                            label4.ForeColor = Color.Red;
-                            label4.Text = "Hours for a day should be between 1 to 24.";
-                            return;
-                        }
-                        break;
-                    case "Week":
-                        if (enteredHours < 1 || enteredHours > 140)
-                        {
-                            label4.ForeColor = Color.Red;
-                            label4.Text = "Hours for a week should be between 1 to 140.";
-                            return;
-                        }
-                        break;
-                    case "Month":
-                        if (enteredHours < 1 || enteredHours > 480)
-                        {
-                            label4.ForeColor = Color.Red;
-                            label4.Text = "Hours for a month should be between 1 to 480.";
-                            return;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-
-
-                label4.ForeColor = Color.Black; 
-
-                label4.Text = ""; 
-                panel1.Visible = false;
-
-                p.Hours = enteredHours;
                 db.SaveChanges();
-                // Update Timeline based on Productivity
-                UpdateTimeline(Form1.projectid);
-
                 LoadProductivityData();
-            
+                UpdateTimeline(Form1.projectid);
             }
-
             catch (Exception ex)
             {
-                label4.ForeColor = Color.Red;
-                label4.Text = $"Error: {ex.Message}";
+                MessageBox.Show(ex.Message);
             }
-
-
         }
+
         private void UpdateTimeline(int projectID) //this function updates the monthly changed hours to timeline
         {
             var uptime = db.Timeline.Where(t => t.ProjectId == projectID).ToList();
@@ -168,7 +127,7 @@ namespace ProjectEstimationTool
                 foreach (var u in uptime)
                 {
                     int monthlyHours = db.Productivity
-                        .Where(p => p.ProductivityName == "Month" && p.ProjectId == projectID)
+                        .Where(p => p.ProductivityName == "Week" && p.ProjectId == projectID)
                         .Select(p => p.Hours)
                         .FirstOrDefault();
 
@@ -183,18 +142,11 @@ namespace ProjectEstimationTool
             }
         }
 
-      
 
-        private void button2_Click_1(object sender, EventArgs e)
-        {
-            panel1.Visible = false;
-            label4.Text = "";
-        }
 
-        private void label1_Click(object sender, EventArgs e)
-        {
-            //;
-        }
+
+
+
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -215,21 +167,105 @@ namespace ProjectEstimationTool
             this.Parent.Controls.Add(fc);
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+
+        private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            label4.Visible = true;
-            // Validate that the entered text is a valid integer
-            if (!IsValidHours(textBox1.Text))
+            try
             {
-                label4.ForeColor = Color.Red;
+                DataGridViewRow editedRow = dataGridView1.Rows[e.RowIndex];
 
-                label4.Text = "Please enter a valid value for hours.";
+                // Ensure the edited row is not a new row
+                if (!editedRow.IsNewRow)
+                {
+                    // Get the edited Productivity object
+                    Productivity editedProductivity = editedRow.DataBoundItem as Productivity;
+
+                    if (editedProductivity != null)
+                    {
+                        // Validate the edited value
+                        if (!IsValidHours(editedRow.Cells["Hours"].Value.ToString()))
+                        {
+                            MessageBox.Show("Please enter a valid value for hours.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            LoadProductivityData();
+                            return;
+                        }
+
+                        // Validate that the entered hours are not negative
+                        int enteredHours = int.Parse(editedRow.Cells["Hours"].Value.ToString());
+                        if (enteredHours < 0)
+                        {
+                            MessageBox.Show("Please enter a non-negative value for hours.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            LoadProductivityData();
+                            return;
+                        }
+
+                        // Update the corresponding Productivity record
+                        editedProductivity.Hours = enteredHours;
+                        productivityrelation(editedProductivity.ProductivityName, enteredHours);
+                        db.SaveChanges();
+
+                        // Update Timeline based on Productivity
+                        UpdateTimeline(Form1.projectid);
+
+                        LoadProductivityData();
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                label4.ForeColor = Color.Black; // Reset text color to default
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LoadProductivityData();
+            }
+        }
 
-                label4.Text = ""; // Clear the error message
+        private void dataGridView1_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            try
+            {
+                if (e.RowIndex > 0 && (e.ColumnIndex == 3))
+                {
+                    string inputValue = e.FormattedValue.ToString();
+
+                    if (string.IsNullOrWhiteSpace(inputValue))
+                    {
+                        // Handle empty cell
+                        dataGridView1.Rows[e.RowIndex].ErrorText = "Cell value cannot be empty.";
+                        e.Cancel = true;
+                        return;
+                    }
+
+                    if (!int.TryParse(inputValue, out int value) || value < 0)
+                    {
+                        MessageBox.Show("Please enter a non-negative integer value.");
+                        dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = ""; // Clear the cell value
+                        return;
+                    }
+                }
+                dataGridView1.Rows[e.RowIndex].ErrorText = "";
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void dataGridView1_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+if (e.Exception is FormatException)
+
+            {
+
+                e.Cancel = true;
+
+            }
+
+            else
+
+            {
+
+                Console.WriteLine($"Error occurred in DataGridView: {e.Exception.Message}");
+
             }
         }
     }

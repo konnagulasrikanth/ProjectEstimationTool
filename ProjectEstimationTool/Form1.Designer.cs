@@ -71,10 +71,10 @@
             button1.BackColor = Color.LightBlue;
             button1.FlatStyle = FlatStyle.Popup;
             button1.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button1.Location = new Point(65, 237);
+            button1.Location = new Point(36, 237);
             button1.Margin = new Padding(3, 4, 3, 4);
             button1.Name = "button1";
-            button1.Size = new Size(162, 40);
+            button1.Size = new Size(219, 40);
             button1.TabIndex = 0;
             button1.Text = "Create New Project";
             button1.UseVisualStyleBackColor = false;
@@ -97,7 +97,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.BackColor = Color.LightBlue;
+            label1.BackColor = Color.Transparent;
             label1.Font = new Font("Palatino Linotype", 30F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label1.Location = new Point(364, 24);
             label1.Name = "label1";
@@ -199,7 +199,7 @@
             label9.AutoSize = true;
             label9.Font = new Font("Palatino Linotype", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             label9.ForeColor = Color.Red;
-            label9.Location = new Point(175, 161);
+            label9.Location = new Point(29, 161);
             label9.Name = "label9";
             label9.Size = new Size(44, 18);
             label9.TabIndex = 17;
@@ -207,7 +207,7 @@
             // 
             // panel1
             // 
-            panel1.BackColor = Color.White;
+            panel1.BackColor = Color.LightCyan;
             panel1.Dock = DockStyle.Fill;
             panel1.Location = new Point(0, 0);
             panel1.Margin = new Padding(3, 4, 3, 4);

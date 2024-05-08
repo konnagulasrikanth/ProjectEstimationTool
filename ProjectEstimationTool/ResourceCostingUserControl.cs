@@ -11,30 +11,310 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Crypto.Tls;
+using Microsoft.Data.SqlClient;
+using ProjectEstimationTool.Properties;
+using iTextSharp.text;
+using System.Diagnostics;
+
 
 namespace ProjectEstimationTool
 {
     public partial class ResourceCostingUserControl : UserControl
     {
-        private ResourceCosting Res { get; set; }
+        // private ResourceCosting Res { get; set; }
         private int timelineid;
         private int Hourlyrate;
         private int Monthlyhours;
         private int Months;
         private int Monthlyrate;
         private int Cost;
+        private string phase;
+
         ProjectEstimationToolMasterContext db = new ProjectEstimationToolMasterContext();
+        private BindingList<ProjectEstimationTool.Models.ResourceCosting> resourceCostings;
+
         public ResourceCostingUserControl()
         {
             InitializeComponent();
+            resourceCostings = new BindingList<ProjectEstimationTool.Models.ResourceCosting>();
+            dataGridView1 = new DataGridView(); // This line is not needed because dataGridView1 is already defined in the designer
+
+            // Set properties and event handlers for dataGridView1
+            dataGridView1.DataSource = resourceCostings;
+            dataGridView1.DataError += dataGridView1_DataError;
+            dataGridView1.AutoGenerateColumns = false;
+            dataGridView1.AllowUserToAddRows = true;
+
+            // Load combo box data and default rows
+            LoadComboBoxData(); // This method should populate the combo boxes
+            LoadDefaultRows();
+
 
 
         }
-
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        public void LoadComboBoxData()
         {
+            try
+            {
+                // Ensure that the DataGridView allows user additions
+                dataGridView1.AllowUserToAddRows = true;
+                dataGridView1.DataSource = null; // Unbind the DataGridView (if needed)
 
+                // Populate the Phase combo box with data
+                var phases = db.Timeline
+                    .Where(t => t.ProjectId == Form1.projectid)
+                    .Select(t => t.Phase)
+                    .ToList();
+                if (dataGridView1 != null)
+                {
+                    // Check if the "Phase" column exists
+                    if (dataGridView1.Columns.Contains("ph"))
+                    {
+                        // The "Phase" column exists, proceed with setting its DataSource
+                        DataGridViewComboBoxColumn phaseColumn = (DataGridViewComboBoxColumn)dataGridView1.Columns["Phase"];
+                        phaseColumn.DataSource = phases;
+                    }
+                    else
+                    {
+                        // The "Phase" column does not exist
+                        MessageBox.Show("The 'Phase' column is not found in dataGridView1.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                else
+                {
+                    // dataGridView1 is null, handle the situation accordingly
+                    MessageBox.Show("dataGridView1 is not initialized.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                // DataGridViewComboBoxColumn phaseColumn = (DataGridViewComboBoxColumn)dataGridView1.Columns["Phase"];
+                // phaseColumn.DataSource = phases;
+
+                // Populate the Country combo box with data
+                var countries = db.Country
+                    .Where(c => c.ProjectId == Form1.projectid)
+                    .Select(c => c.CountryName)
+                    .Distinct()
+                    .ToList();
+
+                DataGridViewComboBoxColumn countryColumn = (DataGridViewComboBoxColumn)dataGridView1.Columns["Country"];
+                countryColumn.DataSource = countries;
+
+                // Populate the ResType combo box with data
+                var resourceTypes = db.ResourceTypes
+                    .Where(rt => rt.ProjectId == Form1.projectid)
+                    .Select(rt => rt.TypeName)
+                    .Distinct()
+                    .ToList();
+                DataGridViewComboBoxColumn resTypeColumn = (DataGridViewComboBoxColumn)dataGridView1.Columns["ResType"];
+                resTypeColumn.DataSource = resourceTypes;
+
+                // Populate the RoleLevel combo box with data
+                var roleLevels = db.ResourceLevel
+                    .Where(rl => rl.ProjectId == Form1.projectid)
+                    .Select(rl => rl.LevelName)
+                    .Distinct()
+                    .ToList();
+                DataGridViewComboBoxColumn roleLevelColumn = (DataGridViewComboBoxColumn)dataGridView1.Columns["RoleLevel"];
+                roleLevelColumn.DataSource = roleLevels;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Debug.WriteLine("Error in LoadComboBoxData: " + ex.Message);
+                // Optionally rethrow the exception if needed
+                throw;
+            }
         }
+
+
+
+
+        private void LoadDefaultRows()
+        {
+            try
+            {
+
+                // Fetch distinct phases from the database
+                var defaultPhases = db.Timeline
+                                    .Where(phase => phase.ProjectId == Form1.projectid)
+                                    .Select(phase => phase.Phase)
+                                    .Distinct()
+                                    .ToList();
+
+                // Populate ResourceCosting2List and deduct allocated counts from default values
+                foreach (var phase in defaultPhases)
+                {
+                    // Fetch default resource count for the phase
+                    int defaultCount = db.Timeline
+                                        .Where(item => item.Phase == phase && item.ProjectId == Form1.projectid)
+                                        .Select(item => item.ResReq)
+                                        .FirstOrDefault();
+
+                    // Fetch allocated count for the phase
+                    int allocatedCount = db.ResourceCosting
+                                            .Where(item => item.Phase == phase && item.ProjectId == Form1.projectid)
+                                            .Select(item => item.ResCount)
+                                            .Sum();
+
+                    // Calculate remaining count by deducting allocated count from default count
+                    int remainingCount = defaultCount - allocatedCount;
+
+                    // Add to ResourceCosting2List only if remainingCount is greater than 0
+                    if (remainingCount >= 0)
+                    {
+                        resourceCostings.Add(new ResourceCosting
+                        {
+                            Phase = phase,
+                            ResCount = remainingCount,
+                            DurationMm = db.Timeline
+                                                .Where(item => item.Phase == phase && item.ProjectId == Form1.projectid)
+                                                .Select(item => item.Mm)
+                                                .FirstOrDefault()
+                        });
+                    }
+                }
+
+                // Set the DataGridView data source
+                dataGridView1.DataSource = resourceCostings;
+
+                // Set the default phases as the DataSource for the phase column in the DataGridView
+                DataGridViewComboBoxColumn phaseColumn = (DataGridViewComboBoxColumn)dataGridView1.Columns["Phase"];
+                phaseColumn.DataSource = defaultPhases;
+
+                // Lock the allocation columns
+                for (int i = 0; i < dataGridView1.Rows.Count; i++)
+                {
+                    dataGridView1.Rows[i].Cells["ResCount"].ReadOnly = true;
+                    dataGridView1.Rows[i].Cells["DurationMm"].ReadOnly = true;
+                    dataGridView1.Rows[i].Cells["ResCount"].Style.BackColor = Color.Gray;
+                    dataGridView1.Rows[i].Cells["DurationMm"].Style.BackColor = Color.Gray;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+
+
+        //private void LoadDefaultRows()
+        //{
+        //    try
+        //    {
+        //        // Fetch default phases from the database
+        //        var defaultPhases = (from phase in db.Timeline
+        //                             where phase.ProjectId == Form1.projectid
+        //                             select phase.Phase).ToList();
+
+        //        // Clear existing rows
+        //        dataGridView1.Rows.Clear();
+        //        dataGridView1.AutoGenerateColumns = false;
+
+
+        //        // Add default rows to the DataGridView
+        //        foreach (var phase in defaultPhases)
+        //        {
+        //            // Fetch default resource count and duration for the phase
+        //            var defaultData = db.Timeline
+        //                                .FirstOrDefault(item => item.Phase == phase && item.ProjectId == Form1.projectid);
+
+        //            if (defaultData != null)
+        //            {
+        //                int defaultCount = defaultData.ResReq;
+        //                int defaultDuration = defaultData.Mm;
+
+        //                // Calculate remaining resources required for the default phase
+        //                int resPending = CalculateRemainingResources(phase, defaultCount);
+
+        //                // Add default row to the DataGridView
+        //                DataGridViewRow defaultRow = new DataGridViewRow();
+        //                defaultRow.CreateCells(dataGridView1);
+        //                defaultRow.Cells[1].Value = phase; // Assuming the first column is for Phase
+        //                defaultRow.Cells[2].Value = resPending; // Assuming the second column is for ResCount
+        //                defaultRow.Cells[8].Value = defaultDuration; // Assuming the third column is for DurationMm
+        //                defaultRow.DefaultCellStyle.BackColor = Color.LightGray; // Color for default rows
+        //                dataGridView1.Rows.Add(defaultRow);
+        //            }
+        //        }
+
+        //        // Add allocated rows to the DataGridView
+        //        foreach (var phase in defaultPhases)
+        //        {
+        //            // Fetch allocated resources for the phase
+        //            var allocatedResources = db.ResourceCosting
+        //                                        .Where(item => item.Phase == phase && item.ProjectId == Form1.projectid)
+        //                                        .ToList();
+
+        //            // Add allocated ResourceCosting entries to the DataGridView
+        //            foreach (var allocatedResource in allocatedResources)
+        //            {
+        //                DataGridViewRow allocatedRow = new DataGridViewRow();
+        //                allocatedRow.CreateCells(dataGridView1);
+        //                allocatedRow.Cells[1].Value = allocatedResource.Phase; // Assuming the first column is for Phase
+        //                allocatedRow.Cells[4].Value = allocatedResource.Country;
+        //                allocatedRow.Cells[3].Value = allocatedResource.ResType;
+        //                allocatedRow.Cells[5].Value = allocatedResource.RoleLevel;
+        //                allocatedRow.Cells[2].Value = allocatedResource.ResCount; // Assuming the second column is for ResCount
+        //                allocatedRow.Cells[7].Value = allocatedResource.MonthlyRate;
+        //                allocatedRow.Cells[6].Value = allocatedResource.HourlyRate;
+        //                allocatedRow.Cells[8].Value = allocatedResource.DurationMm; // Assuming the third column is for DurationMm
+        //                allocatedRow.Cells[9].Value = allocatedResource.Cost;
+        //                dataGridView1.Rows.Add(allocatedRow);
+        //            }
+        //        }
+
+        //        // Set the default phases as the DataSource for the phase column in the DataGridView
+        //        DataGridViewComboBoxColumn phaseColumn = (DataGridViewComboBoxColumn)dataGridView1.Columns["Phases"];
+        //        phaseColumn.DataSource = defaultPhases;
+
+        //        // Lock certain columns and style default rows
+        //        for (int i = 0; i < dataGridView1.Rows.Count; i++)
+        //        {
+        //            // Check if the row is a default row (colored)
+        //            if (dataGridView1.Rows[i].DefaultCellStyle.BackColor == Color.LightGray)
+        //            {
+        //                dataGridView1.Rows[i].Cells["ResCount"].ReadOnly = false;
+        //                dataGridView1.Rows[i].Cells["ResCount"].Style.BackColor = Color.Gray;
+        //                dataGridView1.Rows[i].Cells["DurationMm"].ReadOnly = true;
+        //                dataGridView1.Rows[i].Cells["DurationMm"].Style.BackColor = Color.Gray;
+        //            }
+        //            else
+        //            {
+        //                // Allocated rows remain normal (not colored or locked)
+        //                dataGridView1.Rows[i].Cells["ResCount"].ReadOnly = false;
+        //                dataGridView1.Rows[i].Cells["DurationMm"].ReadOnly = true;
+        //            }
+        //        }
+
+        //        // Hide the ResourceCostingId column
+        //        //dataGridView1.Columns["ResourceCostingIdss"].Visible = false;
+        //        dataGridView1.Refresh();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show(ex.Message);
+        //    }
+        //}
+
+        // Helper method to calculate remaining resources for a default phase
+        private int CalculateRemainingResources(string phase, int defaultCount)
+        {
+            // Fetch allocated resources count for the phase
+            var allocatedResources = db.ResourceCosting
+                                        .Where(item => item.Phase == phase && item.ProjectId == Form1.projectid)
+                                        .ToList();
+
+            // Calculate total allocated resources (sum of ResCount)
+            int totalAllocated = allocatedResources.Sum(item => item.ResCount);
+
+            // Calculate remaining resources required
+            int resPending = defaultCount - totalAllocated;
+            return resPending;
+        }
+
+
         public void RefreshData()
         {
             var res = from t in db.ResourceCosting
@@ -45,48 +325,27 @@ namespace ProjectEstimationTool
 
 
         }
-        public void RefreshAllocation()
+        public void UpdateResourceCosting()
         {
-            var res1 = from t in db.ResourceAllocation
-                       where t.ProjectId == Form1.projectid
-                       select t;
-            dataGridView2.DataSource = res1.ToList();
 
+            // fetch resourcecosting data from the database
+            var resourcecostingdata = db.ResourceCosting.Where(rc => rc.ProjectId == Form1.projectid).ToList();
 
+            // add the fetched data to the resourcecostings list
+            foreach (var resourcecosting in resourcecostingdata)
+            {
+                resourceCostings.Add(resourcecosting);
+            }
+            dataGridView1.DataSource = resourceCostings;
+
+            // Set the DataGridView data source
         }
 
         private void ResourceCostingUserControl_Load(object sender, EventArgs e)
         {
-            panel1.Visible = false;
-            panel2.Visible = false;
 
 
-            UpdateResourceCostTimeline();
 
-            var phase = (from phasename in db.Timeline
-                         where phasename.ProjectId == Form1.projectid
-                         select phasename.Phase).Distinct();
-            var country = (from countryname in db.Country
-                           where countryname.ProjectId == Form1.projectid
-                           select countryname.CountryName).Distinct();
-            var reslevel = (from reslevelname in db.ResourceLevel
-                            where reslevelname.ProjectId == Form1.projectid
-                            select reslevelname.LevelName).Distinct();
-            var restype = (from restypename in db.ResourceTypes
-                           where restypename.ProjectId == Form1.projectid
-                           select restypename.TypeName).Distinct();
-            textBox1.Text = "0";
-            comboBox1.Items.Clear();
-            comboBox2.Items.Clear();
-            comboBox3.Items.Clear();
-            comboBox4.Items.Clear();
-            comboBox1.Items.AddRange(phase.ToArray());
-            comboBox2.Items.AddRange(restype.ToArray());
-            comboBox3.Items.AddRange(country.ToArray());
-            comboBox4.Items.AddRange(reslevel.ToArray());
-
-            RefreshData();
-            RefreshAllocation();
         }
         public void Rateformula(string country, string resourcetype, string rolelevel, string phase, int rescount)
         {
@@ -103,407 +362,10 @@ namespace ProjectEstimationTool
             Cost = Monthlyrate * Months;
 
         }
-        private void UpdateButtonEnabledState() //validation for the adding the resouce count
-        {
-            // Check if all fields are selected/entered
-            if (comboBox1.SelectedItem == null || comboBox2.SelectedItem == null ||
-                comboBox3.SelectedItem == null || comboBox4.SelectedItem == null ||
-                string.IsNullOrEmpty(textBox1.Text))
-            {
-                button2.Enabled = false;
-                return;
-            }
-
-            // Fetch the TimelineId based on the selected phase
-            var selectedPhase = comboBox1.SelectedItem.ToString();
-            var selectedCountry = comboBox3.SelectedItem.ToString();
-            var selectedResourceType = comboBox2.SelectedItem.ToString();
-            var selectedRoleLevel = comboBox4.SelectedItem.ToString();
-            var enteredResourceCount = int.Parse(textBox1.Text);
-
-            // Check if the combination already exists
-            var existingResourceCosting = db.ResourceCosting
-                .FirstOrDefault(rc =>
-                    rc.ProjectId == Form1.projectid &&
-                    rc.Phase == selectedPhase &&
-                    rc.Country == selectedCountry &&
-                    rc.ResType == selectedResourceType &&
-                    rc.RoleLevel == selectedRoleLevel);
-
-            if (existingResourceCosting != null)
-            {
-                // Combination already exists, display an error message and disable the button
-                button2.Enabled = false;
-            }
-            else
-            {
-                // Combination doesn't exist, enable the button
-                button2.Enabled = true;
-            }
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            try
-            {
-
-                if (comboBox1.SelectedItem == null || comboBox2.SelectedItem == null ||
-                    comboBox3.SelectedItem == null || comboBox4.SelectedItem == null ||
-                    string.IsNullOrEmpty(textBox1.Text))
-                {
-                    MessageBox.Show("Please enter values for all fields.", "Alert!");
-                    return;
-                }
-
-                if (!int.TryParse(textBox1.Text, out int resourceCount) || resourceCount <= 0)
-                {
-                    MessageBox.Show("Please enter a valid positive integer for Resource Count.", "Alert!");
-                    return;
-                }
-
-                var selectedPhase = comboBox1.SelectedItem.ToString();
-                var selectedCountry = comboBox3.SelectedItem.ToString();
-                var selectedResourceType = comboBox2.SelectedItem.ToString();
-                var selectedRoleLevel = comboBox4.SelectedItem.ToString();
-
-                var existingRecord = db.ResourceCosting
-                    .FirstOrDefault(rc =>
-
-                        rc.ProjectId == Form1.projectid &&
-                        rc.Phase == selectedPhase &&
-                        rc.Country == selectedCountry &&
-                        rc.ResType == selectedResourceType &&
-                        rc.RoleLevel == selectedRoleLevel);
 
 
-                if (existingRecord != null)
-                {
-                    MessageBox.Show("The same combination already exists please choose another combination.", "Alert!");
-                    return;
-                }
-
-                var resRequired = db.Timeline
-                    .Where(t => t.ProjectId == Form1.projectid && t.Phase == selectedPhase)
-                    .Select(t => t.ResReq)
-                    .FirstOrDefault();
-
-                var resAllocated = db.ResourceCosting
-                    .Where(rc => rc.ProjectId == Form1.projectid && rc.Phase == selectedPhase)
-                    .Select(rc => rc.ResCount)
-                    .Sum();
-
-                var availableResources = resRequired - resAllocated;
-
-                if (resourceCount <= 0)
-                {
-                    MessageBox.Show("Please enter a number greater than 0 for Resource Count.", "Alert!");
-                    return;
-                }
-                else if (resourceCount > availableResources)
-                {
-                    MessageBox.Show($"Number of resources cannot be greater than available resources ({availableResources}).", "Alert!");
-                    return;
-                }
-                else if (resourceCount > resRequired)
-                {
-                    MessageBox.Show($"Number of resources cannot be greater than ResRequired ({resRequired}).", "Alert!");
-                    return;
-                }
-                var resourceid = db.Resource.Where(r => r.ProjectId == Form1.projectid && r.TypeName == selectedResourceType).Select(r => r.ResourceId).FirstOrDefault();
-                var timelineId = db.Timeline
-                    .Where(t => t.ProjectId == Form1.projectid && t.Phase == selectedPhase)
-                    .Select(t => t.TimelineId)
-                    .FirstOrDefault();
-
-                Rateformula(selectedCountry, selectedResourceType, selectedRoleLevel, selectedPhase, resourceCount);
-
-                var adddata = new ResourceCosting
-                {
-
-                    ProjectId = Form1.projectid,
-                    TimelineId = timelineId,
-                    ResourceId = resourceid,
-                    Phase = selectedPhase,
-                    ResCount = resourceCount,
-                    ResType = selectedResourceType,
-                    Country = selectedCountry,
-                    RoleLevel = selectedRoleLevel,
-                    HourlyRate = Hourlyrate,
-                    MonthlyRate = Monthlyrate,
-                    Cost = Cost,
-                    DurationMm = Months
-                };
-
-                db.ResourceCosting.Add(adddata);
-                db.SaveChanges();
-
-                var resallocation = db.ResourceCosting
-                    .Where(p => p.ProjectId == Form1.projectid && p.TimelineId == timelineId)
-                    .Select(p => p.ResCount)
-                    .Sum();
-
-                var updateAllocation = db.ResourceAllocation
-                    .Where(p => p.ProjectId == Form1.projectid && p.TimelineId == timelineId)
-                    .ToList();
-
-                int respending = resRequired - resallocation;
-
-                if (updateAllocation != null && updateAllocation.Count > 0)
-                {
-                    try
-                    {
-                        foreach (var allocation in updateAllocation)
-                        {
-                            allocation.ResourcePending = respending;
-                            allocation.ResourceAllocated = resallocation;
-                            db.ResourceAllocation.Update(allocation);
-                            int i = db.SaveChanges();
-                            MessageBox.Show($"Updated ResourcePending: {allocation.ResourcePending}, Updated ResourceAllocated: {allocation.ResourceAllocated}");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Error updating ResourceAllocation: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-
-                RefreshData();
-                RefreshAllocation();
-                button1.BackColor = Color.RosyBrown;
-                panel1.Visible = false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            button1.BackColor = Color.RosyBrown;
-            panel1.Visible = false;
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            button1.BackColor = Color.LightBlue;
-            panel1.Visible = true;
-            panel2.Visible = false;
-            // Clear entered values
-            comboBox1.SelectedIndex = -1;
-            comboBox2.SelectedIndex = -1;
-            comboBox3.SelectedIndex = -1;
-            comboBox4.SelectedIndex = -1;
-            textBox1.Text = "";
-        }
-
-        private void editToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            panel2.Visible = true;
-            panel1.Visible = false;
-            var phase = (from phasename in db.Timeline
-                         where phasename.ProjectId == Form1.projectid
-                         select phasename.Phase).Distinct();
-            var country = (from countryname in db.Country
-                           where countryname.ProjectId == Form1.projectid
-                           select countryname.CountryName).Distinct();
-            var reslevel = (from reslevelname in db.ResourceLevel
-                            where reslevelname.ProjectId == Form1.projectid
-                            select reslevelname.LevelName).Distinct();
-            var restype = (from restypename in db.ResourceTypes
-                           where restypename.ProjectId == Form1.projectid
-                           select restypename.TypeName).Distinct();
-            comboBox8.Items.Clear();
-            comboBox8.Items.AddRange(phase.ToArray());
-            comboBox6.Items.Clear();
-            comboBox6.Items.AddRange(country.ToArray());
-            comboBox5.Items.Clear();
-            comboBox5.Items.AddRange(reslevel.ToArray());
-            comboBox7.Items.Clear();
-            comboBox7.Items.AddRange(restype.ToArray());
-            if (dataGridView1.SelectedRows.Count > 0)
-            {
-                Res = dataGridView1.SelectedRows[0].DataBoundItem as ResourceCosting;
-
-                if (Res != null)
-                {
-                    comboBox8.Text = Res.Phase;
-                    comboBox6.Text = Res.Country;
-                    comboBox5.Text = Res.RoleLevel;
-                    comboBox7.Text = Res.ResType;
-                    textBox2.Text = Res.ResCount.ToString();
-                }
 
 
-            }
-        }
-
-        private void button5_Click(object sender, EventArgs e) //edit button code
-        {
-
-            try
-            {
-                if (comboBox8.SelectedItem == null || comboBox6.SelectedItem == null ||
-                    comboBox5.SelectedItem == null || comboBox7.SelectedItem == null ||
-                    string.IsNullOrEmpty(textBox2.Text))
-                {
-                    MessageBox.Show("Please enter values for all fields.", "Alert!");
-                    return;
-                }
-
-                if (!int.TryParse(textBox2.Text, out int resCount) || resCount <= 0)
-                {
-                    MessageBox.Show("Please enter a valid positive integer for Resource Count.", "Alert!");
-                    return;
-                }
-
-                var selectedPhase = comboBox8.SelectedItem.ToString();
-                var selectedCountry = comboBox6.SelectedItem.ToString();
-                var selectedResourceType = comboBox7.SelectedItem.ToString();
-                var selectedRoleLevel = comboBox5.SelectedItem.ToString();
-
-                var resRequired = db.Timeline
-                    .Where(t => t.ProjectId == Form1.projectid && t.Phase == selectedPhase)
-                    .Select(t => t.ResReq)
-                    .FirstOrDefault();
-
-                var resAllocated = db.ResourceCosting
-                    .Where(rc => rc.ProjectId == Form1.projectid && rc.Phase == selectedPhase && rc.ResourceCostingId != Res.ResourceCostingId)
-                    .Select(rc => rc.ResCount)
-                    .Sum();
-
-                var availableResources = resRequired - resAllocated;
-
-                if (resCount <= 0)
-                {
-                    MessageBox.Show("Please enter a number greater than 0 for Resource Count.", "Alert!");
-                    return;
-                }
-                else if (resCount > availableResources)
-                {
-                    MessageBox.Show($"Number of resources cannot be greater than available resources ({availableResources}).", "Alert!");
-                    return;
-                }
-                else if (resCount > resRequired)
-                {
-                    MessageBox.Show($"Number of resources cannot be greater than ResRequired ({resRequired}).", "Alert!");
-                    return;
-                }
-
-                // Fetch the existing ResourceCosting record
-                var existingResourceCosting = db.ResourceCosting
-                    .FirstOrDefault(rc =>
-                        rc.ProjectId == Form1.projectid &&
-                        rc.Phase == Res.Phase && // Check with the original values
-                        rc.Country == Res.Country &&
-                        rc.ResType == Res.ResType &&
-                        rc.RoleLevel == Res.RoleLevel);
-                var resourceid = db.Resource.Where(r => r.ProjectId == Form1.projectid && r.TypeName == selectedResourceType&&r.LevelName==selectedRoleLevel&&r.CountryName==selectedCountry).Select(r => r.ResourceId).FirstOrDefault();
-
-                // Update the ResourceCosting record
-                Res.ProjectId = Form1.projectid;
-                Res.ResourceId = resourceid;
-                Res.Phase = selectedPhase;
-                Res.Country = selectedCountry;
-                Res.RoleLevel = selectedRoleLevel;
-                Res.ResType = selectedResourceType;
-                Res.ResCount = resCount; // Using the parsed value
-                Rateformula(selectedCountry, selectedResourceType, selectedRoleLevel, selectedPhase, resCount);
-                Res.HourlyRate = Hourlyrate;
-                Res.MonthlyRate = Monthlyrate;
-                Res.Cost = Cost;
-                Res.DurationMm = Months;
-
-                db.SaveChanges();
-
-                var uresreq = db.Timeline
-                    .Where(p => p.ProjectId == Form1.projectid && p.Phase == selectedPhase)
-                    .Select(p => p.ResReq)
-                    .FirstOrDefault();
-
-                var uresallocation = db.ResourceCosting
-                    .Where(p => p.ProjectId == Form1.projectid && p.Phase == selectedPhase)
-                    .Select(p => p.ResCount)
-                    .Sum();
-
-                var uupdateAllocation = db.ResourceAllocation
-                    .Where(p => p.ProjectId == Form1.projectid && p.Phase == selectedPhase)
-                    .ToList();
-
-                int urespending = uresreq - uresallocation;
-
-                if (uupdateAllocation != null && uupdateAllocation.Count > 0)
-                {
-                    foreach (var allocation in uupdateAllocation)
-                    {
-                        allocation.ResourcePending = urespending;
-                        allocation.ResourceAllocated = uresallocation;
-                        db.ResourceAllocation.Update(allocation);
-                        db.SaveChanges();
-                    }
-                }
-
-                RefreshData();
-                RefreshAllocation();
-                panel2.Visible = false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error updating resource costing: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            panel2.Visible = false;
-        }
-
-        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (dataGridView1.SelectedCells.Count > 0)
-            {
-                DialogResult result = MessageBox.Show("Are you sure you want to delete this row?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (result == DialogResult.Yes)
-                {
-                    DataGridViewRow selectedRow = dataGridView1.Rows[dataGridView1.SelectedCells[0].RowIndex];
-                    if (selectedRow.DataBoundItem is ResourceCosting RESCOST)
-                    {
-                        int seid = RESCOST.ResourceCostingId;
-
-                        var delete = db.ResourceCosting.FirstOrDefault(t => t.ResourceCostingId == seid);
-
-                        if (delete != null)
-                        {
-                            db.ResourceCosting.Remove(delete);
-                            db.SaveChanges();
-                            var uresreq = db.Timeline.Where(p => p.ProjectId == Form1.projectid && p.Phase == delete.Phase).Select(p => p.ResReq).FirstOrDefault();
-                            var uresallocation = db.ResourceCosting.Where(p => p.ProjectId == Form1.projectid && p.Phase == delete.Phase).Select(p => p.ResCount).Sum();
-                            var uupdateAllocation = db.ResourceAllocation.Where(p => p.ProjectId == Form1.projectid && p.Phase == delete.Phase).ToList();
-                            int urespending = uresreq - uresallocation;
-
-                            if (uupdateAllocation != null && uupdateAllocation.Count > 0)
-                            {
-                                foreach (var allocation in uupdateAllocation)
-                                {
-                                    allocation.ResourcePending = urespending;
-                                    allocation.ResourceAllocated = uresallocation;
-                                    db.ResourceAllocation.Update(allocation);
-                                    db.SaveChanges();
-                                }
-                            }
-                            RefreshData();
-                            RefreshAllocation();
-                            // Clear entered values
-                            comboBox1.SelectedIndex = -1;
-                            comboBox2.SelectedIndex = -1;
-                            comboBox3.SelectedIndex = -1;
-                            comboBox4.SelectedIndex = -1;
-                            textBox1.Text = "";
-                        }
-                    }
-                }
-            }
-        }
 
         private void button6_Click(object sender, EventArgs e)
         {
@@ -518,33 +380,55 @@ namespace ProjectEstimationTool
             SummaryUserControl ra = new SummaryUserControl();
             this.Hide();
             this.Parent.Controls.Add(ra);
-        }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
+            MasterUserControl m = new MasterUserControl();
 
-        }
-
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
 
         }
 
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
 
+
+
+
+
+
+
+        private void CalculateAndSaveResourceCosting(ResourceCosting resourceCosting)
+        {
+            // Calculate and update the ResourceCosting properties
+            Rateformula(resourceCosting.Country, resourceCosting.ResType, resourceCosting.RoleLevel, resourceCosting.Phase, resourceCosting.ResCount);
+
+            resourceCosting.HourlyRate = Hourlyrate;
+            resourceCosting.MonthlyRate = Monthlyrate;
+            resourceCosting.Cost = Cost;
+            resourceCosting.DurationMm = Months;
+            // Save changes to the database
+            db.SaveChanges();
         }
 
-        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
-        {
-        }
 
-        private void comboBox3_SelectedIndexChanged(object sender, EventArgs e)
-        {
-        }
 
-        private void comboBox4_SelectedIndexChanged(object sender, EventArgs e)
+
+
+        // Set the data source for the Phase column
+
+
+
+        private void dataGridView1_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
+            try
+            {
+                if (e.Exception is FormatException)
+                {
+                    e.Cancel = true;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                // Handle any exceptions that might occur during error handling
+                Console.WriteLine($"Error handling DataGridView data error: {ex.Message}");
+            }
         }
         public void UpdateResourceCostTimeline()
         {
@@ -592,15 +476,217 @@ namespace ProjectEstimationTool
         }
 
 
-        private void label2_Click(object sender, EventArgs e)
+        private void resourceCostingBindingSource_CurrentChanged(object sender, EventArgs e)
         {
 
         }
 
-        private void dataGridView2_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void dataGridView1_CellEndEdit_1(object sender, DataGridViewCellEventArgs e)
+        {
+            try
+            {
+                int rowIndex = e.RowIndex;
+                int columnIndex = e.ColumnIndex;
+
+                // Check if the edited cell is within the data grid view bounds
+                if (dataGridView1 != null && e.RowIndex >= 0 && e.ColumnIndex >= 0)
+                {
+                    // Retrieve the edited row
+                    DataGridViewRow editedRow = dataGridView1.Rows[rowIndex];
+
+                    // Get values from the edited row
+                    string selectedPhase = editedRow.Cells["Phase"].Value?.ToString();
+                    string selectedCountry = editedRow.Cells["Country"].Value?.ToString();
+                    string selectedResourceType = editedRow.Cells["ResType"].Value?.ToString();
+                    string selectedRoleLevel = editedRow.Cells["RoleLevel"].Value?.ToString();
+
+                    // Retrieve the ResourceCosting object for the edited row
+                    var editedResourceCosting = dataGridView1.Rows[rowIndex].DataBoundItem as ResourceCosting;
+
+                    if (editedResourceCosting != null)
+                    {
+                        // Update ResourceCosting properties based on the edited cell
+                        switch (dataGridView1.Columns[columnIndex].Name)
+                        {
+                            case "Phase":
+                                editedResourceCosting.Phase = selectedPhase;
+                                break;
+                            case "Country":
+                                editedResourceCosting.Country = selectedCountry;
+                                break;
+                            case "ResType":
+                                editedResourceCosting.ResType = selectedResourceType;
+                                break;
+                            case "RoleLevel":
+                                editedResourceCosting.RoleLevel = selectedRoleLevel;
+                                break;
+                            case "ResCount":
+                                if (int.TryParse(editedRow.Cells["ResCount"].Value?.ToString(), out int resCount))
+                                {
+                                    editedResourceCosting.ResCount = resCount;
+                                    Rateformula(selectedCountry, selectedResourceType, selectedRoleLevel, selectedPhase, resCount);
+                                    editedResourceCosting.HourlyRate = Hourlyrate;
+                                    editedResourceCosting.MonthlyRate = Monthlyrate;
+                                    editedResourceCosting.Cost = Cost;
+                                    editedResourceCosting.DurationMm = Months;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+
+                        // Save changes within a try-catch block
+
+                    }
+                    try
+                    {
+                        int resourceCostingId = Convert.ToInt32(dataGridView1.Rows[rowIndex].Cells[0].Value);
+                        if (resourceCostingId == 0)
+                        {
+                            // Check if any required property is null before saving
+                            if (string.IsNullOrEmpty(selectedPhase) ||
+                                string.IsNullOrEmpty(selectedCountry) ||
+                                string.IsNullOrEmpty(selectedResourceType) ||
+                                string.IsNullOrEmpty(selectedRoleLevel))
+                            {
+                                //MessageBox.Show("Please select values for Phase, Country, Resource Type, and Role Level.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+                            int ResCount = Convert.ToInt32(dataGridView1.Rows[rowIndex].Cells["ResCount"].Value);
+                            // Apply rate formula for newly added records
+                            Rateformula(selectedCountry, selectedResourceType, selectedRoleLevel, selectedPhase, ResCount);
+
+
+                            // Retrieve timelineId and resourceid from the database
+                            var timelineId = db.Timeline
+                                .Where(t => t.ProjectId == Form1.projectid && t.Phase == selectedPhase)
+                                .Select(t => t.TimelineId)
+                                .FirstOrDefault();
+
+                            var resourceid = db.Resource
+                                .Where(r => r.ProjectId == Form1.projectid && r.TypeName == selectedResourceType)
+                                .Select(r => r.ResourceId)
+                                .FirstOrDefault();
+
+                            // Create a new ResourceCosting object for adding
+                            var adddata = new ResourceCosting
+                            {
+                                ProjectId = Form1.projectid,
+                                TimelineId = timelineId,
+                                ResourceId = resourceid,
+                                Phase = selectedPhase,
+                                ResType = selectedResourceType,
+                                Country = selectedCountry,
+                                RoleLevel = selectedRoleLevel,
+                                ResCount = ResCount,
+                                HourlyRate = Hourlyrate,
+                                DurationMm = Months,
+                                MonthlyRate = Monthlyrate,// Include MonthlyRate
+                                Cost = Cost
+                            };
+
+                            // Add the new record to the database and save changes
+                            db.ResourceCosting.Add(adddata);
+                            db.SaveChanges();
+                            MessageBox.Show("New resource costing added successfully");
+                        }
+                        else
+                        {
+                            // Update existing ResourceCosting record in the database
+                            db.SaveChanges(); // Save changes after updating
+                            MessageBox.Show("Resource costing updated successfully");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Display the specific error message from the inner exception
+                        string errorMessage = ex.InnerException?.Message ?? ex.Message;
+                        MessageBox.Show($"Error saving to the database: {errorMessage}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void dataGridView1_KeyDown_1(object sender, KeyEventArgs e)
+        {
+            // Check if the delete key is pressed
+            if (e.KeyCode == Keys.Delete)
+            {
+                // Check if any rows are selected
+                if (dataGridView1.SelectedRows.Count > 0)
+                {
+
+                    // Prompt the user to confirm deletion
+                    DialogResult result = MessageBox.Show("Are you sure you want to delete the selected row?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    // If the user confirms deletion
+                    if (result == DialogResult.Yes)
+                    {
+                        int rowIndex = -1; // Declare rowIndex outside of the try block
+
+                        try
+                        {
+                            // Get the index of the selected row
+                            rowIndex = dataGridView1.SelectedRows[0].Index;
+
+                            // Get the ResourceCostingId of the selected row
+                            int resourceCostingId = (int)dataGridView1.Rows[rowIndex].Cells["ResourceCostingIdss"].Value;
+
+                            // Remove the row from the DataGridView
+                            dataGridView1.Rows.RemoveAt(rowIndex);
+
+                            // Delete the corresponding record from the database using resourceCostingId
+                            var recordToDelete = db.ResourceCosting.FirstOrDefault(rc => rc.ResourceCostingId == resourceCostingId);
+                            if (recordToDelete != null)
+                            {
+                                db.ResourceCosting.Remove(recordToDelete);
+                                // Remove associated SoftwareCostingTest records
+                                db.SoftwareCostingTest.RemoveRange(recordToDelete.SoftwareCostingTest);
+                                db.SaveChanges();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            if (ex is SqlException sqlEx && sqlEx.Number == 547) // Check if it's a foreign key constraint violation
+                            {
+                                if (rowIndex != -1)
+                                {
+                                    // Remove the row from the DataGridView even if the deletion from the database failed
+                                    dataGridView1.Rows.RemoveAt(rowIndex);
+                                }
+                                MessageBox.Show("The selected record cannot be deleted because it is referenced by other records.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                            else
+                            {
+                                MessageBox.Show($"Error deleting row: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+
+
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Please select a row to delete.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+        }
+
+        private void dataGridView1_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
         {
 
         }
     }
-
 }
+
+

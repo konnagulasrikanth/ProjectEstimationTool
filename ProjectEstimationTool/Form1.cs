@@ -203,16 +203,20 @@ namespace ProjectEstimationTool
 
         private void button3_Click(object sender, EventArgs e)  //create project (create) button
         {
+            // Check if the project name is not entered before proceeding
+            if (string.IsNullOrWhiteSpace(textBox1.Text))
+            {
+                MessageBox.Show("Please enter a project name before proceeding.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return; // Exit the method if the project name is not entered
+            }
             panel6.Visible = true;
             panel4.Visible = false;
             panel5.Visible = false;
             panel3.Visible = false;
             panel2.Visible = false;
 
+           
 
-
-            //    panel3.Visible = true;
-            //    panel2.Visible = false;
             isButton1Clicked = false;
             isButton2Clicked = false;
             isButton3Clicked = true;
@@ -227,11 +231,6 @@ namespace ProjectEstimationTool
                 button6.Visible = true;
                 UpdateVisibility();
             }
-            if (string.IsNullOrWhiteSpace(textBox1.Text))
-            {
-                label11.Text = "Please enter a project name before proceeding.";
-                return; 
-            }
 
             projectname = textBox1.Text.Trim();
 
@@ -240,19 +239,16 @@ namespace ProjectEstimationTool
 
             if (projectExists)
             {
-                label11.Text = "Project Name already exists. Choose another name";
+                MessageBox.Show("Project Name already exists. Choose another name", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return; // Exit the method if the project name already exists
             }
-            else
-            {
-                Project newProject = new Project { ProjectName = projectname };
-                projectContext.Project.Add(newProject);
-                projectContext.SaveChanges();
-                projectid = newProject.ProjectId;
+            Project newProject = new Project { ProjectName = projectname };
+            projectContext.Project.Add(newProject);
+            projectContext.SaveChanges();
+            projectid = newProject.ProjectId;
 
-                // label4.Text = projectname;
-                label4.Text = newProject.ProjectName;
-                projectname = newProject.ProjectName;
-            }
+            label4.Text = newProject.ProjectName;
+            projectname = newProject.ProjectName;
 
         }
 
@@ -309,7 +305,6 @@ namespace ProjectEstimationTool
                         Ba = item.Ba,
                         Dev = item.Dev,
                         Qa = item.Qa,
-                        Rules = item.Rules,
                         // Set the ProjectId manually
                         ProjectId = projectid // <-- This value needs to be a valid ProjectId
                     };
@@ -336,6 +331,7 @@ namespace ProjectEstimationTool
                         // Set properties from the source table item                        
                         // Assuming the properties are the same in both tables          
                         FunctionalAreaName = item.FunctionalAreaName,
+                        FunctionalSubAreaName = item.FunctionalSubAreaName,
                         // Set the ProjectId manually
                         ProjectId = projectid // <-- This value needs to be a valid ProjectId
                     };
@@ -371,22 +367,22 @@ namespace ProjectEstimationTool
                 // Add the new records to the destination table                
                 projectContext.Productivity.AddRange(dest);
 
-                //Functional SubArea
-                var FuncSub = projectContext.DefaultFunctionalSubArea.ToList();
+                ////Functional SubArea
+                //var FuncSub = projectContext.DefaultFunctionalSubArea.ToList();
 
-                // Insert data into FunctionalSubArea with manually specified ProjectId             
-                var destina = FuncSub.Select(item =>
-                {
-                    var destinationItem = new FunctionalSubArea
-                    {
-                        FunctionalSubAreaName = item.FunctionalSubAreaName,
-                        ProjectId = projectid
-                    };
-                    return destinationItem;
-                });
+                //// Insert data into FunctionalSubArea with manually specified ProjectId             
+                //var destina = FuncSub.Select(item =>
+                //{
+                //    var destinationItem = new FunctionalSubArea
+                //    {
+                //        FunctionalSubAreaName = item.FunctionalSubAreaName,
+                //        ProjectId = projectid
+                //    };
+                //    return destinationItem;
+                //});
 
-                // Add the new records to the destination table                
-                projectContext.FunctionalSubArea.AddRange(destina);
+                //// Add the new records to the destination table                
+                //projectContext.FunctionalSubArea.AddRange(destina);
 
            
 

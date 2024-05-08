@@ -6,8 +6,10 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Policy;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -19,38 +21,61 @@ namespace ProjectEstimationTool
         ProjectEstimationToolMasterContext db = new ProjectEstimationToolMasterContext();
         private int Projectid;
         private EffortType effortdata;
+        //private EffortType ActualEffort;
+        //private EffortType Ba;
+        //private EffortType Dev;
+        //private EffortType Qa;
         private string Projectname;
         private int effortId;
- 
+        BindingList<EffortType> effortlist;
+
         static DataTable dt = new DataTable();
-        public DataGridView MyDataGridView
-        {
-            get { return dgv1; }
-            set { dgv1 = value; }
-        }
 
-
-
-        public void UpdateProjectLabel(string projectname, int projectid)
-        {
-            Projectid = projectid;
-            Projectname = projectname;
-            RefreshData();
-        }
-        public void RefreshData()
-        {
-            var res = from t in db.EffortType
-                      where t.ProjectId == Form1.projectid
-                      select t;
-            dgv1.DataSource = res.ToList();
-        }
         public EffortTypeUserControl()
         {
 
 
             InitializeComponent();
+            effortlist = new BindingList<EffortType>();
+            RefreshData();
+            dgv1.AutoGenerateColumns = true;
+            dgv1.AllowUserToAddRows = true;
+           // dgv1.CellEndEdit += dgv1_CellEndEdit;
+          //  dgv1.CellValidating += dgv1_CellValidating;
+
+
+
         }
 
+        public void RefreshData()
+        {
+            try
+            {
+                var res = db.EffortType.Where(t => t.ProjectId == Form1.projectid).ToList();
+                effortlist.Clear();
+                foreach (var item in res)
+                {
+                    effortlist.Add(item);
+                }
+                dgv1.DataSource = effortlist;
+            }
+            catch
+            {
+                MessageBox.Show("Error Loading while loading the data");
+            }
+        }
+        private void UpdateEffortListFromGrid()
+        {
+            effortlist.Clear();
+            foreach (DataGridViewRow row in dgv1.Rows)
+            {
+                if (!row.IsNewRow)
+                {
+                    var effort = (EffortType)row.DataBoundItem;
+                    effortlist.Add(effort);
+                }
+            }
+        }
 
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -58,51 +83,12 @@ namespace ProjectEstimationTool
 
         }
 
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
 
-        }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            button1.BackColor = Color.LightBlue;
-            panel1.Visible = true;
-            panel2.Visible = false;
-        }
-
-        private void panel1_Paint_1(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void editToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            panel1.Visible = false;
-            panel2.Visible = true;
-            if (dgv1.SelectedRows.Count > 0)
-            {
-                effortdata = dgv1.SelectedRows[0].DataBoundItem as EffortType;
-
-                if (effortdata != null)
-                {
-                    textBox12.Text = effortdata.EffortName;
-                    effortId = effortdata.EffortId; 
-                    textBox11.Text = effortdata.ActualEffort.ToString();
-                    textBox10.Text = effortdata.Ba.ToString();
-                    textBox9.Text = effortdata.Qa.ToString();
-                    textBox8.Text = effortdata.Dev.ToString();
-                    textBox7.Text = effortdata.Rules.ToString();
-
-                }
-            }
-
-        }
 
         private void EffortTypeUserControl_Load(object sender, EventArgs e)
         {
-            panel1.Visible = false;
-            panel2.Visible = false;
-            RefreshData();
+
 
         }
 
@@ -112,51 +98,12 @@ namespace ProjectEstimationTool
 
 
         }
-        private void dgv1_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
-        {
 
-        }
 
-        private void editToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
 
-        }
 
-        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
 
-            effortdata = dgv1.SelectedRows[0].DataBoundItem as EffortType;
 
-            if (effortdata != null)
-            {
-                effortId = effortdata.EffortId;
-            }
-                if (effortId != 0)
-            {
-                EffortType EffortTypeToDelete = db.EffortType.FirstOrDefault(fs => fs.EffortId == effortId);
-
-                if (EffortTypeToDelete != null)
-                {
-                    DialogResult result = MessageBox.Show("Are you sure you want to delete.", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                    if (result == DialogResult.Yes)
-                    {
-                        db.EffortType.Remove(EffortTypeToDelete);
-                        db.SaveChanges();
-                        RefreshData();
-                    }
-                }
-            }
-            else
-            {
-                MessageBox.Show("Effort ID is not coming please check the code");
-            }
-        }
-
-        private void editToolStripMenuItem_MouseDown(object sender, MouseEventArgs e)
-        {
-
-        }
         private bool EffortNameExists(string effortName, int currentEffortId)
         {
             var existingEffort = db.EffortType
@@ -168,190 +115,9 @@ namespace ProjectEstimationTool
             return existingEffort != null;
         }
 
-        private void button3_Click(object sender, EventArgs e)  //add effort type code
-        {
-            try
-            {
-                // Trim leading and trailing whitespaces from the input
-                string effortName = textBox1.Text.Trim();
-                string actualEffortStr = textBox2.Text.Trim();
-                string baPercentageStr = textBox3.Text.Trim();
-                string qaPercentageStr = textBox4.Text.Trim();
-                string devPercentageStr = textBox5.Text.Trim();
-                string rulesStr = textBox6.Text.Trim();
-
-                // Check if any of the fields are empty
-                if (string.IsNullOrWhiteSpace(effortName) ||
-                    string.IsNullOrWhiteSpace(actualEffortStr) ||
-                    string.IsNullOrWhiteSpace(baPercentageStr) ||
-                    string.IsNullOrWhiteSpace(qaPercentageStr) ||
-                    string.IsNullOrWhiteSpace(devPercentageStr) ||
-                    string.IsNullOrWhiteSpace(rulesStr))
-                {
-                    MessageBox.Show("All fields must be entered.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                // Check if the input contains only numeric characters for numeric fields
-                if (!int.TryParse(actualEffortStr, out int actualEffort) ||
-                    !int.TryParse(baPercentageStr, out int baPercentage) ||
-                    !int.TryParse(qaPercentageStr, out int qaPercentage) ||
-                    !int.TryParse(devPercentageStr, out int devPercentage) ||
-                    !int.TryParse(rulesStr, out int rules))
-                {
-                    MessageBox.Show("Numeric fields must contain valid numeric values.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    textBox2.Clear();
-                    textBox3.Clear();
-                    textBox4.Clear();
-                    textBox5.Clear();
-                    textBox6.Clear();
-                    return;
-                }
-
-       
-
-                // Check if the individual percentages for BA, QA, and Dev exceed 100%
-                if (baPercentage + qaPercentage + devPercentage != 100)
-                {
-                    MessageBox.Show("The sum of BA, QA, and Dev percentages should not exceed 100%.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                if (!System.Text.RegularExpressions.Regex.IsMatch(effortName, "^[a-zA-Z\\s\\-]+$"))
-                {
-                    MessageBox.Show("Effort Name should only contain alphabets, one space, or hyphen.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                // Check if the effort name already exists (case-insensitive)
-                if (EffortNameExists(effortName,effortId))
-                {
-                    MessageBox.Show("Effort type with the same name already exists. Choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
 
 
-                // Create a new EffortType instance
-                EffortType newEffortType = new EffortType
-                {
-                    EffortName = effortName,
-                    ActualEffort = actualEffort,
-                    Ba = baPercentage,
-                    Qa = qaPercentage,
-                    Dev = devPercentage,
-                    Rules = rules,
-                    ProjectId = Form1.projectid
-                };
 
-                db.EffortType.Add(newEffortType);
-                db.SaveChanges();
-                RefreshData();
-                // Clear the data in textboxes
-                textBox1.Clear();
-                textBox2.Clear();
-                textBox3.Clear();
-                textBox4.Clear();
-                textBox5.Clear();
-                textBox6.Clear();
-                panel1.Visible = false;
-            }
-            catch (OverflowException)
-            {
-                MessageBox.Show("The entered value is too large, please check and enter the value", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-
-        }
-      
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            button1.BackColor = Color.RosyBrown;
-            panel1.Visible = false;
-        }
-
-        private void button5_Click(object sender, EventArgs e) //edit button for updation
-        {
-            try
-            {
-                string effortName = textBox12.Text.Trim();
-                string actualEffortStr = textBox11.Text.Trim();
-                string baPercentageStr = textBox10.Text.Trim();
-                string qaPercentageStr = textBox9.Text.Trim();
-                string devPercentageStr = textBox8.Text.Trim();
-                string rulesStr = textBox7.Text.Trim();
-
-                // Check if any of the fields are empty
-                if (string.IsNullOrWhiteSpace(effortName) ||
-                    string.IsNullOrWhiteSpace(actualEffortStr) ||
-                    string.IsNullOrWhiteSpace(baPercentageStr) ||
-                    string.IsNullOrWhiteSpace(qaPercentageStr) ||
-                    string.IsNullOrWhiteSpace(devPercentageStr) ||
-                    string.IsNullOrWhiteSpace(rulesStr))
-                {
-                    MessageBox.Show("All fields must be entered.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                if (!System.Text.RegularExpressions.Regex.IsMatch(effortName, "^[a-zA-Z\\s\\-]+$"))
-                {
-                    MessageBox.Show("Effort Name should only contain alphabets, one space, or hyphen.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                // Check if the effort name already exists (case-insensitive)
-                if (EffortNameExists(effortName, effortId))
-                {
-                    MessageBox.Show("Effort type with the same name already exists.Pleas choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-
-                // Check if the input contains only numeric characters for numeric fields
-                if (!int.TryParse(actualEffortStr, out int actualEffort) ||
-                    !int.TryParse(baPercentageStr, out int baPercentage) ||
-                    !int.TryParse(qaPercentageStr, out int qaPercentage) ||
-                    !int.TryParse(devPercentageStr, out int devPercentage) ||
-                    !int.TryParse(rulesStr, out int rules))
-                {
-                    MessageBox.Show("Error: Numeric fields must contain valid numeric values.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                // Check if the individual percentages for BA, QA, and Dev exceed 100%
-                if (baPercentage + qaPercentage + devPercentage != 100)
-                {
-                    MessageBox.Show("Error: The sum of BA, QA, and Dev percentages should equal 100%.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                // Update the existing EffortType with the new values
-                effortdata.EffortName = effortName;
-                effortdata.ActualEffort = actualEffort;
-                effortdata.Ba = baPercentage;
-                effortdata.Qa = qaPercentage;
-                effortdata.Dev = devPercentage;
-                effortdata.Rules = rules;
-
-                db.SaveChanges();
-                RefreshData();
-                panel2.Visible = false;
-                MessageBox.Show("Effort Type updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (OverflowException)
-            {
-                MessageBox.Show("The entered value is too large, please check and enter the value", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-        }
-        private void button4_Click(object sender, EventArgs e)
-        {
-            panel2.Visible = false;
-        }
 
         private void button6_Click(object sender, EventArgs e)
         {
@@ -360,14 +126,465 @@ namespace ProjectEstimationTool
             this.Parent.Controls.Add(prod);
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+
+
+        //private void dgv1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        //{
+        //    try
+        //    {
+        //        if (e.RowIndex >= 0)
+        //        {
+        //            DataGridViewRow modifiedRow = dgv1.Rows[e.RowIndex];
+        //            var effortdata = (ProjectEstimationTool.Models.EffortType)modifiedRow.DataBoundItem;
+
+
+        //            effortdata.EffortName = effortdata.EffortName.Trim();
+
+
+
+        //            if (effortdata.EffortName.Contains("  ") || effortdata.EffortName.Contains("--") || effortdata.EffortName.Contains("- -"))
+        //            {
+        //                MessageBox.Show("Continuous spaces or hyphens are not allowed in the effort name.");
+        //                modifiedRow.Cells[e.ColumnIndex].Value = DBNull.Value;
+        //                return;
+        //            }
+        //            if (char.IsDigit(effortdata.EffortName.FirstOrDefault()))
+        //            {
+        //                MessageBox.Show("Effort name should not start with a number.");
+        //                modifiedRow.Cells[e.ColumnIndex].Value = DBNull.Value;
+        //                return;
+        //            }
+        //            if (effortdata.EffortName.Any(c => !char.IsLetterOrDigit(c) && c != '-' && c != ' '))
+        //            {
+        //                MessageBox.Show("Effort name should not contain special characters other than hyphen and space.");
+        //                modifiedRow.Cells[e.ColumnIndex].Value = DBNull.Value;
+        //                return;
+        //            }
+
+        //            effortdata.ProjectId = Form1.projectid;
+
+        //            if (effortdata.EffortId == 0)
+        //            {
+
+        //                db.EffortType.Add(effortdata);
+
+        //            }
+
+        //            if ((effortdata.EffortId != 0 && effortdata.EffortName != null && effortdata.ActualEffort > 0) && (effortdata.Ba > 0 || effortdata.Dev > 0 || effortdata.Qa > 0))
+        //            {
+        //                if (effortdata.Ba + effortdata.Dev + effortdata.Qa != 100)
+        //                {
+        //                    MessageBox.Show("Sum of BA, Dev, QA values should not be equal to 100.");
+        //                    effortdata.Qa = 0;
+        //                    dgv1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "";
+        //                    return;
+        //                }
+        //            }
+
+
+        //            if (effortdata.EffortName != null && effortdata.Ba + effortdata.Dev + effortdata.Qa == 100)
+        //            {
+        //                db.SaveChanges();
+        //                MessageBox.Show("Data saved successfully.");
+        //            }
+        //            else if (effortdata.EffortName == null)
+        //            {
+        //                MessageBox.Show("Please enter effort name.");
+        //                return;
+        //            }
+
+        //            else if (effortdata.EffortName != null && effortdata.ActualEffort > 0 && effortdata.Ba > 0 && effortdata.Dev > 0 && effortdata.Qa > 0)
+        //            {
+        //                MessageBox.Show("Sum of BA, Dev, QA values should not be equal to 100.");
+        //                dgv1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "";
+        //                return;
+        //            }
+
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        //MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //    }
+        //}
+        //=================================
+
+
+
+
+        //private void dgv1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        //{
+        //    try
+        //    {
+        //        if (e.RowIndex >= 0)
+        //        {
+        //            DataGridViewRow modifiedRow = dgv1.Rows[e.RowIndex];
+        //            var effortdata = (ProjectEstimationTool.Models.EffortType)modifiedRow.DataBoundItem;
+        //            if (effortdata == null)
+        //            {
+        //              //  MessageBox.Show("Effort data is null.");
+        //                return;
+        //            }
+
+        //            effortdata.EffortName = effortdata.EffortName.Trim();
+
+        //            // Validate Effort Name
+        //            if (string.IsNullOrWhiteSpace(effortdata.EffortName))
+        //            {
+        //                MessageBox.Show("Effort name cannot be empty.");
+        //                return;
+        //            }
+
+        //            // Validate Effort Name Format
+        //            if (effortdata.EffortName.Contains("  ") || effortdata.EffortName.Contains("--") || effortdata.EffortName.Contains("- -"))
+        //            {
+        //                MessageBox.Show("Continuous spaces or hyphens are not allowed in the effort name.");
+        //                return;
+        //            }
+
+        //            // Validate Effort Name Start
+        //            if (char.IsDigit(effortdata.EffortName.FirstOrDefault()))
+        //            {
+        //                MessageBox.Show("Effort name should not start with a number.");
+        //                return;
+        //            }
+
+        //            // Validate Effort Name Special Characters
+        //            if (effortdata.EffortName.Any(c => !char.IsLetterOrDigit(c) && c != '-' && c != ' '))
+        //            {
+        //                MessageBox.Show("Effort name should not contain special characters other than hyphen and space.");
+        //                return;
+        //            }
+
+        //            // Other validations...
+
+        //            if (effortdata.EffortId == 0)
+        //            {
+        //                db.EffortType.Add(effortdata);
+        //            }
+
+        //            if (dgv1.Columns[e.ColumnIndex].Name == "Qa") // Check if QA column is being edited
+        //            {
+        //                // Check if all BA, Dev, and QA values are entered before sum validation
+        //                bool allValuesEntered = dgv1.Rows[e.RowIndex].Cells.Cast<DataGridViewCell>()
+        //                                        .Any(cell => cell.OwningColumn.Name == "Ba" || cell.OwningColumn.Name == "Dev" || cell.OwningColumn.Name == "Qa")
+        //                                        && dgv1.Rows[e.RowIndex].Cells["Ba"].Value != null
+        //                                        && dgv1.Rows[e.RowIndex].Cells["Dev"].Value != null
+        //                                        && dgv1.Rows[e.RowIndex].Cells["Qa"].Value != null;
+
+        //                if (allValuesEntered && (effortdata.EffortName != null && effortdata.ActualEffort > 0))
+        //                {
+        //                    int ba = Convert.ToInt32(dgv1.Rows[e.RowIndex].Cells["Ba"].Value);
+        //                    int dev = Convert.ToInt32(dgv1.Rows[e.RowIndex].Cells["Dev"].Value);
+        //                    int qa = Convert.ToInt32(dgv1.Rows[e.RowIndex].Cells["Qa"].Value);
+
+        //                    if (ba + dev + qa != 100)
+        //                    {
+        //                        MessageBox.Show("Sum of BA, Dev, QA values should be equal to 100.");
+        //                        // Clear the last entered value
+        //                        // modifiedRow.Cells[e.ColumnIndex].Value = null;
+        //                        //   dgv1.Rows[e.RowIndex].Cells["Qa"].Value = DBNull.Value;
+        //                        // int qaColumnIndex = dgv1.Columns["Qa"].Index;
+        //                        dgv1.Rows[e.RowIndex].Cells["Ba"].Value = null;
+        //                        dgv1.Rows[e.RowIndex].Cells["Dev"].Value = null;
+        //                        dgv1.Rows[e.RowIndex].Cells["Qa"].Value = null;
+        //                        // Clear the last entered value in the "Qa" column
+        //                        //  dgv1.Rows[e.RowIndex].Cells[qaColumnIndex].Value = null;
+
+        //                        return;
+        //                    }
+        //                }
+        //            }
+        //            effortdata.ProjectId = Form1.projectid;
+
+        //            if (effortdata.EffortId == 0)
+        //            {
+
+        //                db.EffortType.Add(effortdata);
+
+        //            }
+
+
+        //            // If the sum is correct or other conditions are met, save the data
+        //            if (effortdata.EffortId==0 && effortdata.EffortName != null && effortdata.Ba + effortdata.Dev + effortdata.Qa == 100)
+        //            {
+        //                db.SaveChanges();
+        //                MessageBox.Show("Data saved successfully.");
+        //                dgv1.EditMode = DataGridViewEditMode.EditProgrammatically;
+        //            }
+        //            else if (effortdata.EffortName == null)
+        //            {
+        //                MessageBox.Show("Please enter effort name.");
+        //                return;
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Handle exception
+        //        MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //    }
+        //}
+        private void dgv1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-          
+
+            try
+            {
+                if (e.RowIndex >= 0)
+                {
+
+                    DataGridViewRow modifiedRow = dgv1.Rows[e.RowIndex];
+                    var effortdata = (ProjectEstimationTool.Models.EffortType)modifiedRow.DataBoundItem;
+                    if (effortdata == null)
+                    {
+                        //  MessageBox.Show("Effort data is null.");
+                        return;
+                    }
+
+                    effortdata.EffortName = effortdata.EffortName.Trim();
+
+                    // Validate Effort Name
+                    if (string.IsNullOrWhiteSpace(effortdata.EffortName))
+                    {
+                        MessageBox.Show("Effort name cannot be empty.");
+                        
+                        return;
+                     
+                    }
+
+                    // Validate Effort Name Format
+                    if (effortdata.EffortName.Contains("  ") || effortdata.EffortName.Contains("--") || effortdata.EffortName.Contains("- -"))
+                    {
+                        MessageBox.Show("Continuous spaces or hyphens are not allowed in the effort name.");
+                        return;
+                    }
+
+                    // Validate Effort Name Start
+                    if (char.IsDigit(effortdata.EffortName.FirstOrDefault()))
+                    {
+                        MessageBox.Show("Effort name should not start with a number.");
+                        return;
+                    }
+
+                    // Validate Effort Name Special Characters
+                    if (effortdata.EffortName.Any(c => !char.IsLetterOrDigit(c) && c != '-' && c != ' '))
+                    {
+                        MessageBox.Show("Effort name should not contain special characters other than hyphen and space.");
+                        return;
+                    }
+
+                    // Other validations...
+
+                    if (effortdata.EffortId == 0)
+                    {
+                        db.EffortType.Add(effortdata);
+                    }
+
+                    if (dgv1.Columns[e.ColumnIndex].Name == "Qa") // Check if QA column is being edited
+                    {
+                        // Check if all BA, Dev, and QA values are entered before sum validation
+                        bool allValuesEntered = dgv1.Rows[e.RowIndex].Cells.Cast<DataGridViewCell>()
+                                                .Any(cell => cell.OwningColumn.Name == "Ba" || cell.OwningColumn.Name == "Dev" || cell.OwningColumn.Name == "Qa")
+                                                && dgv1.Rows[e.RowIndex].Cells["Ba"].Value != null
+                                                && dgv1.Rows[e.RowIndex].Cells["Dev"].Value != null
+                                                && dgv1.Rows[e.RowIndex].Cells["Qa"].Value != null;
+
+                        if (allValuesEntered && (effortdata.EffortName != null && effortdata.ActualEffort > 0))
+                        {
+                            int ba = Convert.ToInt32(dgv1.Rows[e.RowIndex].Cells["Ba"].Value);
+                            int dev = Convert.ToInt32(dgv1.Rows[e.RowIndex].Cells["Dev"].Value);
+                            int qa = Convert.ToInt32(dgv1.Rows[e.RowIndex].Cells["Qa"].Value);
+
+                            if (ba + dev + qa != 100)
+                            {
+                                MessageBox.Show("Sum of BA, Dev, QA values should be equal to 100.");
+                                // Clear the last entered value
+                                dgv1.Rows[e.RowIndex].Cells["Ba"].Value = null;
+                                dgv1.Rows[e.RowIndex].Cells["Dev"].Value = null;
+                                dgv1.Rows[e.RowIndex].Cells["Qa"].Value = null;
+                                // Disable the next cell for editing
+                                // Disable editing for the next row
+                                for (int i = 0; i < dgv1.Rows.Count; i++)
+                                {
+                                    if (i < e.RowIndex)
+                                    {
+                                        dgv1.Rows[i].ReadOnly = false;
+                                    }
+                                    else if(i == e.RowIndex)
+                                    {
+                                        dgv1.Rows[i].ReadOnly=false;
+                                    }
+                                    else
+                                    {
+                                        dgv1.Rows[i].ReadOnly = true;
+                                    }
+                                }
+                              
+
+                            }
+                        }
+                    }
+                    effortdata.ProjectId = Form1.projectid;
+
+                    if (effortdata.EffortId == 0)
+                    {
+                        db.EffortType.Add(effortdata);
+                    }
+
+                    // If the sum is correct or other conditions are met, save the data
+                    if (effortdata.EffortId == 0 && effortdata.EffortName != null && effortdata.Ba + effortdata.Dev + effortdata.Qa == 100)
+                    {
+                        db.SaveChanges();
+                        MessageBox.Show("Data saved successfully.");
+                        dgv1.EditMode = DataGridViewEditMode.EditProgrammatically;
+                    }
+                    else if (effortdata.EffortName == null)
+                    {
+                        MessageBox.Show("Please enter effort name.");
+                        return;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
-        private void textBox12_TextChanged(object sender, EventArgs e)
+
+
+
+        //private void dgv1_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        //{
+        //    try
+        //    {
+        //        if (e.RowIndex > 0 && e.ColumnIndex == 2) // Check only for the Effort Type column
+        //        {
+        //            string inputValue = e.FormattedValue.ToString().Trim();
+
+        //            if (string.IsNullOrWhiteSpace(inputValue))
+        //            {
+        //                // Handle empty cell
+        //                dgv1.Rows[e.RowIndex].ErrorText = "Cell value cannot be empty.";
+        //                e.Cancel = true;
+        //                return;
+        //            }
+
+        //            // Check for duplicate data only in the Effort Type column
+        //            for (int i = 0; i < dgv1.Rows.Count - 1; i++)
+        //            {
+        //                if (i != e.RowIndex) // Exclude the current row
+        //                {
+        //                    if (dgv1.Rows[i].Cells[2].Value != null &&
+        //                        dgv1.Rows[i].Cells[2].Value.ToString() == inputValue)
+        //                    {
+        //                        MessageBox.Show("Duplicate data is not allowed in the Effort Type column.");
+        //                        dgv1.Rows[e.RowIndex].Cells[2].Value = ""; // Clear the cell value
+        //                        e.Cancel = true;
+        //                        return;
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        dgv1.Rows[e.RowIndex].ErrorText = "";
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show("Error: " + ex.Message);
+        //    }
+        //}
+
+
+
+        private void dgv1_KeyDown(object sender, KeyEventArgs e)
         {
-          
+            try
+            {
+                if (e.KeyCode == Keys.Delete)
+                {
+                    if (dgv1.SelectedRows.Count > 0)
+                    {
+                        var selectedRow = dgv1.SelectedRows[0];
+                        var effortdata = (ProjectEstimationTool.Models.EffortType)selectedRow.DataBoundItem;
+                        var effortId = effortdata.EffortId;
+
+                        DialogResult result = MessageBox.Show("Are you sure you want to delete this item?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                        if (result == DialogResult.Yes)
+                        {
+                            var effortToDelete = db.EffortType.FirstOrDefault(e => e.EffortId == effortId);
+
+                            if (effortToDelete != null)
+                            {
+                                db.EffortType.Remove(effortToDelete);
+                                db.SaveChanges();
+                                RefreshData();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+     private void dgv1_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+{
+    try
+    {
+        if (e.RowIndex >= 0)
+        {
+            if (e.ColumnIndex == 2) // Check for the Effort Type column
+            {
+                string inputValue = e.FormattedValue.ToString().Trim();
+
+                if (string.IsNullOrWhiteSpace(inputValue))
+                {
+                    // Handle empty cell
+                    dgv1.Rows[e.RowIndex].ErrorText = "Cell value cannot be empty.";
+                    e.Cancel = true;
+                    return;
+                }
+
+                // Check for duplicate data only in the Effort Type column
+                foreach (DataGridViewRow row in dgv1.Rows)
+                {
+                    if (row.Index != e.RowIndex && row.Cells[2].Value != null &&
+                        row.Cells[2].Value.ToString().Equals(inputValue, StringComparison.OrdinalIgnoreCase))
+                    {
+                        MessageBox.Show("Duplicate data is not allowed in the Effort Type column.");
+                        e.Cancel = true;
+                        return;
+                    }
+                }
+            }
+            // Rest of your validation logic...
+        }
+        dgv1.Rows[e.RowIndex].ErrorText = ""; // Clear error text
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+    }
+}
+
+
+
+
+
+        private void dgv1_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            if (e.Exception is FormatException)
+            {
+                e.Cancel = true;
+            }
+            else
+            {
+                Console.WriteLine($"Error occurred in DataGridView: {e.Exception.Message}");
+            }
         }
     }
 }

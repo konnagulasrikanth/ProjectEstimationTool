@@ -1,5 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using ProjectEstimationTool.Models;
+using ProjectEstimationTool.Properties;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,31 +20,33 @@ namespace ProjectEstimationTool
     {
         ProjectEstimationToolMasterContext db = new ProjectEstimationToolMasterContext();
         private Software s;
-        static DataTable dt = new DataTable();
 
-        public DataGridView MyDataGridView
-        {
-            get { return dataGridView1; }
-            set { dataGridView1 = value; }
-        }
+
+        BindingList<Software> softdata;
+
 
 
 
         public SoftwarerateUserControl()
         {
             InitializeComponent();
-            dataGridView1.ContextMenuStrip = contextMenuStrip1;
+            softdata = new BindingList<Software>();
+
+           // dataGridView1.CellEndEdit += dataGridView1_CellEndEdit;
+           // dataGridView1.CellParsing += dataGridView1_CellParsing;
+            dataGridView1.DataError += dataGridView1_DataError;
+            dataGridView1.AutoGenerateColumns = true;
+            dataGridView1.AllowUserToAddRows = true;
+            LoadSoftwareData();
+
         }
 
 
 
         private void SoftwarerateUserControl_Load(object sender, EventArgs e)
         {
-            LoadSoftwareData();
-     
 
-            panel1.Visible = false;
-            panel2.Visible = false;
+
 
 
         }
@@ -53,71 +57,24 @@ namespace ProjectEstimationTool
         }
         private void LoadSoftwareData()
         {
-            var res = from t in db.Software
-                      where t.ProjectId == Form1.projectid
-                      select t;
-            dataGridView1.DataSource = res.ToList();
-        }
+            softdata.Clear();
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            button1.BackColor = Color.LightBlue;
-            textBox1.Text = "";
-            textBox2.Text = "";
-            panel1.Visible = true;
-            panel2.Visible = false;
+            // Fetch resources from the database
+            var res = db.Software.Where(t => t.ProjectId == Form1.projectid).ToList();
 
-
-        }
-
-        private void editToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            panel2.Visible = true;
-            panel1.Visible = false;
-            if (dataGridView1.SelectedRows.Count > 0)
+            // Add the fetched resources to the resources list
+            foreach (Software resource in res)
             {
-                s = dataGridView1.SelectedRows[0].DataBoundItem as Software;
-                if (s != null)
-                {
-                    textBox4.Text = s.SoftwareName;
-                    textBox3.Text = s.MonthlyRate.ToString();
-                }
+                softdata.Add(resource);
             }
+
+            // Set the DataGridView data source
+            dataGridView1.DataSource = softdata;
         }
 
-        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (dataGridView1.SelectedRows.Count > 0)
-            {
-                DialogResult result = MessageBox.Show("Are you sure you want to delete this row?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-                if (result == DialogResult.Yes)
-                {
-                    DataGridViewRow selectedRow = dataGridView1.SelectedRows[0];
-
-                    if (selectedRow.DataBoundItem is Software selectedResource)
-                    {
-                        int resourceId = selectedResource.SoftwareId;
-
-                        var resourceToDelete = db.Software.FirstOrDefault(r => r.SoftwareId == resourceId);
-
-                        if (resourceToDelete != null)
-                        {
-                            db.Software.Remove(resourceToDelete);
-                            db.SaveChanges();
-                            LoadSoftwareData();
-                        }
-                    }
-                }
-            }
-        }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
         {
 
         }
@@ -136,298 +93,7 @@ namespace ProjectEstimationTool
             return existingSoftware != null;
         }
 
-        private void ShowValidationMessage(string message)
-        {
-            MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
 
-        private bool IsValidSoftwareName(string softwareName)
-        {
-            return System.Text.RegularExpressions.Regex.IsMatch(softwareName, "^[a-zA-Z\\s\\-]+$");
-        }
-
-        private bool IsValidNumericValue(string value, out int result)
-        {
-            return int.TryParse(value, out result);
-        }
-
-        private bool IsDuplicateSoftwareName(string softwareName, int? excludeSoftwareId = null)
-        {
-            string lowerSoftwareName = softwareName.ToLower();
-            return db.Software.Any(s => s.SoftwareName.ToLower() == lowerSoftwareName && s.ProjectId == Form1.projectid && (excludeSoftwareId == null || s.SoftwareId != excludeSoftwareId));
-        }
-        public bool SetToolTip(System.Windows.Forms.TextBox textBox, string message)
-        {
-            try
-            {
-                string trimmedText = textBox.Text.Trim(); // Remove leading and trailing white spaces
-
-                if (string.IsNullOrWhiteSpace(trimmedText))
-                {
-                    MessageBox.Show("TextBox cannot be empty");
-                    return true;
-                }
-                else if (!ContainsAlphabet(trimmedText))
-                {
-                    MessageBox.Show("TextBox should contain atleast one Alphabet");                   
-                    return true;
-                }
-                else if (ContainsMultipleWhiteSpaces(trimmedText))
-                {
-                    MessageBox.Show("Text BOx should only contain one space in between words");
-                    return true;
-                }
-                else if (ContainsMultipleSpecialCharacters(trimmedText))
-                {
-                    MessageBox.Show("Text B0x should only contain one Special caharacters in between words");
-                    return true;
-                }
-                else
-                {
-                    
-                    return false;
-                }
-            }
-            catch { return false; }
-        }
-        public bool ContainsAlphabet(string value)
-        {
-            try
-            {
-                // Define a regular expression pattern to match alphabetic characters
-                string pattern = @"[a-zA-Z]";
-                // Matches a string that contains at least one alphabet character
-
-                // Check if the string contains at least one alphabet character according to the pattern
-                return Regex.IsMatch(value, pattern);
-            }
-            catch { return false; }
-        }
-        public bool ContainsMultipleWhiteSpaces(string value)
-        {
-            try
-            {
-                // Define a regular expression pattern to match multiple white spaces between words
-                string pattern = @"\s{2,}";
-                // Matches a string that contains multiple white spaces between words
-
-                // Check if the string contains multiple white spaces between words according to the pattern
-                return Regex.IsMatch(value, pattern);
-            }
-            catch { return false; }
-        }
-
-        public bool ContainsMultipleSpecialCharacters(string value)
-        {
-            try
-            {
-                // Define a regular expression pattern to match multiple special characters between words
-                string pattern = @"[^A-Za-z0-9\s]{2,}";
-                // Matches a string that contains multiple special characters between words
-
-                // Check if the string contains multiple special characters between words according to the pattern
-                return Regex.IsMatch(value, pattern);
-            }
-            catch { return false; }
-        }
-        public bool TextValidation(System.Windows.Forms.TextBox textBox, string message)
-        {
-            try
-            {
-                if (!int.TryParse(message, out int value))
-                {
-                    MessageBox.Show("Please enter a valid integer value");
-                    return true; // Validation failed
-                }
-                else if (value < 0)
-                {
-                    MessageBox.Show("Please enter positive values");
-                    return true; // Validation failed
-                }
-                else if (value > Int32.MaxValue)
-                {
-                    MessageBox.Show("Please enter shorter value");
-                    return true; // Validation failed
-                }
-                else
-                {
-                    return false; // Validation success
-                }
-            }
-            catch { return false; }
-
-        }
-        private bool ValidateSoftwareForAdd()
-        {
-            // Validate that all the required fields are filled
-            if (string.IsNullOrWhiteSpace(textBox1.Text) || string.IsNullOrWhiteSpace(textBox2.Text))
-            {
-                ShowValidationMessage("Please fill in all the required fields.");
-                return false;
-            }
-
-            // Validate that Software Name contains only alphabets, hyphens, spaces
-            if (!IsValidSoftwareName(textBox1.Text))
-            {
-                ShowValidationMessage("Error: Software Name should only contain alphabets, hyphens, and spaces.");
-                return false;
-            }
-
-            // Validate that Monthly Rate is a valid numeric value
-            if (!IsValidNumericValue(textBox2.Text, out _))
-            {
-                ShowValidationMessage("Please enter a valid numeric value for Monthly Rate.");
-                return false;
-            }
-
-            // Validate that the software name is not duplicated (case-insensitive)
-            // Validate that the software name is not duplicated (case-insensitive)
-            if (SoftwareNameExists(textBox1.Text, 0))
-            {
-                MessageBox.Show("Software with the same name already exists. Please choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-
-            return true;
-        }
-
-        private bool ValidateSoftwareForEdit()
-        {
-            // Validate that all the required fields are filled
-            if (string.IsNullOrWhiteSpace(textBox4.Text) || string.IsNullOrWhiteSpace(textBox3.Text))
-            {
-                ShowValidationMessage("Please fill in all the required fields.");
-                return false;
-            }
-
-            // Validate that Software Name contains only alphabets, hyphens, spaces
-            if (!IsValidSoftwareName(textBox4.Text))
-            {
-                ShowValidationMessage("Error: Software Name should only contain alphabets, hyphens, and spaces.");
-                return false;
-            }
-
-            // Validate that Monthly Rate is a valid numeric value
-            if (!IsValidNumericValue(textBox3.Text, out _))
-            {
-                ShowValidationMessage("Please enter a valid numeric value for Monthly Rate.");
-                return false;
-            }
-
-            // Validate that the software name is not duplicated (case-insensitive) excluding the current edited item
-            if (SoftwareNameExists(textBox4.Text, s.SoftwareId))
-            {
-                MessageBox.Show("Software with the same name already exists. Please choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-
-            return true;
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (TextValidation(textBox2, textBox2.Text))
-                {
-                    // Validation failed
-                    return;
-                }
-                if (SetToolTip(textBox1,textBox1.Text))
-                {
-                    return;
-                }
-                // Check if the software name already exists
-                if (SoftwareNameExists(textBox1.Text, 0))
-                {
-                    MessageBox.Show("Software with the same name already exists. Please choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                var newSoftware = new Software
-                    {
-                        ProjectId = Form1.projectid,
-                        SoftwareName = textBox1.Text.Trim(),
-                        MonthlyRate = int.Parse(textBox2.Text),
-                    };
-
-                    db.Software.Add(newSoftware);
-                    db.SaveChanges();
-                    LoadSoftwareData();
-                    button1.BackColor = Color.RosyBrown;
-
-                    panel1.Visible = false;
-                
-            }
-            catch (FormatException)
-            {
-                MessageBox.Show("Please enter a valid numeric value for Monthly Rate.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (TextValidation(textBox3, textBox3.Text))
-                {
-                    // Validation failed
-                    return;
-                }
-                if (SetToolTip(textBox4, textBox4.Text))
-                {
-                    return;
-                }
-                // Validate that the software name is not duplicated (case-insensitive) excluding the current edited item
-                if (SoftwareNameExists(textBox4.Text, s.SoftwareId))
-                {
-                    MessageBox.Show("Software with the same name already exists. Please choose a different name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                // Validate that MonthlyRate is a valid numeric value
-                if (!int.TryParse(textBox3.Text, out int monthlyRate))
-                    {
-                        MessageBox.Show("Please enter a valid numeric value for Monthly Rate.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-                    // Your existing code to update the software details
-                    s.SoftwareName = textBox4.Text.Trim();
-                    s.MonthlyRate = monthlyRate;
-                    db.SaveChanges();
-                    LoadSoftwareData();
-                
-                panel2.Visible = false;
-                panel1.Visible = false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-      
-
-        private void panel2_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            panel2.Visible = false;
-        }
-
-        private void button5_Click(object sender, EventArgs e)
-        {
-            button1.BackColor = Color.RosyBrown;
-            textBox1.Text = "";
-            textBox2.Text = "";
-
-            panel1.Visible = false;
-        }
 
         private void button6_Click(object sender, EventArgs e)
         {
@@ -436,15 +102,327 @@ namespace ProjectEstimationTool
             this.Parent.Controls.Add(rc);
         }
 
-        private void button7_Click(object sender, EventArgs e)
+
+
+
+
+        private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            Scope sc = new Scope();
-            this.Hide();
-            this.Parent.Controls.Add(sc);
+            //if (e.ColumnIndex == dataGridView1.Columns["MonthlyRate"].Index)
+            //{
+            //    int newRowIdx = dataGridView1.Rows.Count - 1;
+            //    string softwareName = dataGridView1.Rows[e.RowIndex].Cells["SoftwareName"].Value?.ToString().Trim();
+            //    string monthlyRateStr = dataGridView1.Rows[e.RowIndex].Cells["MonthlyRate"].Value?.ToString().Trim();
+
+            //    // **Verify SoftwareId column index** (adjust if needed)
+            //    int softwareIdColumnIndex = dataGridView1.Columns["SoftwareIds"].Index; // Assuming SoftwareId is in the "SoftwareId" column
+
+
+
+            //    // Determine if it's a new row or an existing row being edited
+            //    bool isNewRow = e.RowIndex == newRowIdx;
+
+            //    if (!isNewRow)
+            //    {
+            //        int softwareId = 0;
+            //        try
+            //        {
+            //            softwareId = Convert.ToInt32(dataGridView1.Rows[e.RowIndex].Cells[softwareIdColumnIndex].Value); // Retrieve the ID from the correct column
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            MessageBox.Show($"Error retrieving SoftwareId: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //            return;
+            //        }
+
+            //        // If softwareId is 0, then it's not a valid row to edit
+            //        if (softwareId == 0)
+            //        {
+            //            if (!string.IsNullOrEmpty(monthlyRateStr))
+            //            {
+            //                // Handle adding a new row
+            //                // Create a new Software object and add it to the database
+            //                var newSoftware = new Software
+            //                {
+            //                    ProjectId = Form1.projectid, // Assuming project ID is readily available
+            //                    SoftwareName = softwareName,
+            //                    MonthlyRate = Convert.ToInt32(monthlyRateStr)
+            //                };
+
+            //                // Save changes to the database within a try-catch block
+            //                try
+            //                {
+            //                    db.Software.Add(newSoftware);
+            //                    db.SaveChanges();
+            //                    LoadSoftwareData();
+            //                    MessageBox.Show("Software added successfully.");
+            //                }
+            //                catch (Exception ex)
+            //                {
+            //                    MessageBox.Show($"Error adding software: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //                }
+            //            }
+            //            else
+            //            {
+            //                MessageBox.Show("Please enter the monthly rate.");
+            //            }
+            //        }
+
+            //        // Handle editing an existing row
+            //        // If softwareId is 0, then it's not a valid row to edit
+            //        if (softwareId != 0)
+            //        {
+            //            // Handle editing an existing row
+            //            // Update the existing Software object
+            //            var softwareToUpdate = db.Software.FirstOrDefault(s => s.SoftwareId == softwareId);
+            //            if (softwareToUpdate != null)
+            //            {
+            //                softwareToUpdate.SoftwareName = softwareName;
+            //                softwareToUpdate.MonthlyRate = Convert.ToInt32(monthlyRateStr);
+            //                db.SaveChanges();
+            //                LoadSoftwareData();
+            //                MessageBox.Show("Software updated successfully.");
+            //            }
+            //        }
+            //    }
+            //}
+            if (e.ColumnIndex == dataGridView1.Columns["MonthlyRate"].Index)
+            {
+                // Validation for MonthlyRate column
+                string monthlyRateStr1 = dataGridView1.Rows[e.RowIndex].Cells["MonthlyRate"].Value?.ToString().Trim();
+                if (!IsValidNumber(monthlyRateStr1))
+                {
+                    MessageBox.Show("Please enter a valid monthly rate (numeric characters only).", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    dataGridView1.Rows[e.RowIndex].Cells["MonthlyRate"].Value = ""; // Clear the cell value
+                    return;
+                }
+            }
+            else if (e.ColumnIndex == dataGridView1.Columns["SoftwareName"].Index)
+            {
+                // Validation for SoftwareName column
+                string SoftwareName = dataGridView1.Rows[e.RowIndex].Cells["SoftwareName"].Value?.ToString().Trim();
+                if (!IsValidSoftwareName(SoftwareName))
+                {
+                    MessageBox.Show("Please enter a valid software name (alphabetic characters only).", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    dataGridView1.Rows[e.RowIndex].Cells["SoftwareName"].Value = ""; // Clear the cell value
+                    return;
+                }
+                // Check for duplicate names
+                int softwareId = Convert.ToInt32(dataGridView1.Rows[e.RowIndex].Cells["SoftwareIds"].Value);
+                if (SoftwareNameExists1(SoftwareName, softwareId))
+                {
+                    MessageBox.Show("This software name already exists. Please choose a unique name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    dataGridView1.Rows[e.RowIndex].Cells["SoftwareName"].Value = ""; // Clear the cell value
+                    return;
+                }
+            }
+
+            // Existing code below this point (no changes)
+
+            int newRowIdx = dataGridView1.Rows.Count - 1;
+            string softwareName = dataGridView1.Rows[e.RowIndex].Cells["SoftwareName"].Value?.ToString().Trim();
+            string monthlyRateStr = dataGridView1.Rows[e.RowIndex].Cells["MonthlyRate"].Value?.ToString().Trim();
+
+            // **Verify SoftwareId column index** (adjust if needed)
+            int softwareIdColumnIndex = dataGridView1.Columns["SoftwareIds"].Index; // Assuming SoftwareId is in the "SoftwareId" column
+
+            // Determine if it's a new row or an existing row being edited
+            bool isNewRow = e.RowIndex == newRowIdx;
+
+            if (!isNewRow)
+            {
+                int softwareId = 0;
+                try
+                {
+                    softwareId = Convert.ToInt32(dataGridView1.Rows[e.RowIndex].Cells[softwareIdColumnIndex].Value); // Retrieve the ID from the correct column
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error retrieving SoftwareId: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // If softwareId is 0, then it's not a valid row to edit
+                if (softwareId == 0)
+                {
+                    if (!string.IsNullOrEmpty(monthlyRateStr))
+                    {
+                        // Handle adding a new row
+                        // Create a new Software object and add it to the database
+                        var newSoftware = new Software
+                        {
+                            ProjectId = Form1.projectid, // Assuming project ID is readily available
+                            SoftwareName = softwareName,
+                            MonthlyRate = Convert.ToInt32(monthlyRateStr)
+                        };
+
+                        // Save changes to the database within a try-catch block
+                        try
+                        {
+                            db.Software.Add(newSoftware);
+                            db.SaveChanges();
+                            LoadSoftwareData();
+                            MessageBox.Show("Software added successfully.");
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error adding software: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Please enter the monthly rate.");
+                    }
+                }
+
+                // Handle editing an existing row
+                // If softwareId is 0, then it's not a valid row to edit
+                if (softwareId != 0)
+                {
+                    // Handle editing an existing row
+                    // Update the existing Software object
+                    var softwareToUpdate = db.Software.FirstOrDefault(s => s.SoftwareId == softwareId);
+                    if (softwareToUpdate != null)
+                    {
+                        softwareToUpdate.SoftwareName = softwareName;
+                        // Try-catch block for updating monthly rate
+                        try
+                        {
+                            softwareToUpdate.MonthlyRate = Convert.ToInt32(monthlyRateStr);
+                            db.SaveChanges();
+                            LoadSoftwareData();
+                            MessageBox.Show("Software updated successfully.");
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error updating monthly rate: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+            }
+
+
         }
-       
 
+        // Method to validate if a string consists of numeric characters only
+        private bool IsValidNumber(string input)
+        {
+            return !string.IsNullOrWhiteSpace(input) && input.All(char.IsDigit);
+        }
 
+        // Method to validate if a string consists of alphabetic characters only
+        private bool IsValidSoftwareName(string input)
+        {
+            return !string.IsNullOrWhiteSpace(input) && input.All(char.IsLetter);
+        }
+
+        // Method to check if the software name already exists
+        private bool SoftwareNameExists1(string softwareName, int currentSoftwareId)
+        {
+            var existingSoftware = db.Software
+                .FirstOrDefault(s =>
+                    s.SoftwareName.ToLower() == softwareName.ToLower() &&
+                    s.SoftwareId != currentSoftwareId);
+
+            return existingSoftware != null;
+        }
+
+        private void dataGridView1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+            {
+                // Check if any row is selected
+                if (dataGridView1.SelectedRows.Count > 0)
+                {
+                    // Get the selected row
+                    DataGridViewRow selectedRow = dataGridView1.SelectedRows[0];
+
+                    // Get the SoftwareId from the selected row
+                    int softwareId = Convert.ToInt32(selectedRow.Cells["SoftwareIds"].Value);
+
+                    // Ask for confirmation before deleting
+                    DialogResult result = MessageBox.Show("Are you sure you want to delete this record?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (result == DialogResult.Yes)
+                    {
+                        try
+                        {
+                            // Find the Software object in the database
+                            var softwareToDelete = db.Software.FirstOrDefault(s => s.SoftwareId == softwareId);
+                            if (softwareToDelete != null)
+                            {
+                                // Remove the Software object from the database
+                                db.Software.Remove(softwareToDelete);
+                                db.SaveChanges();
+                               // LoadSoftwareData();
+                                // Remove the row from the DataGridView
+                                dataGridView1.Rows.Remove(selectedRow);
+
+                                MessageBox.Show("Record deleted successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                            else
+                            {
+                                MessageBox.Show("Selected record not found in the database.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error deleting record: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Please select a row to delete.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+        }
+
+      
+
+        private void dataGridView1_CellParsing(object sender, DataGridViewCellParsingEventArgs e)
+        {
+            if (e.ColumnIndex == dataGridView1.Columns["MonthlyRate"].Index)
+            {
+                // Check if the entered value can be parsed as an integer
+                if (!int.TryParse(e.Value.ToString(), out int parsedValue))
+                {
+                    // If parsing fails, set ParsingApplied to true to indicate that the event handler has handled the parsing
+                    e.ParsingApplied = true;
+
+                    // Show error message to the user
+                    MessageBox.Show("Please enter a valid integer value for the monthly rate.", "Error", MessageBoxButtons.OK);
+
+                    // Clear the cell value
+                    dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = null;
+                }
+                else
+                {
+                    // If parsing succeeds, set the parsed value to the Value property of the event args
+                    // e.Value = parsedValue;
+
+                    // Clear any previous error text for the cell
+                    //  dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].ErrorText = string.Empty;
+                }
+            }
+        }
+
+        private void dataGridView1_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+
+            if (e.Exception is FormatException)
+            {
+                e.Cancel = true;
+            }
+            else
+            {
+
+                Console.WriteLine($"Error occurred in DataGridView: {e.Exception.Message}");
+            }
+
+        }
     }
 }
+
+
+
 
